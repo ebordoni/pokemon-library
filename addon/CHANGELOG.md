@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.4] - 2026-07-06
+
+### Fixed
+
+- White page on load: recharts (Stats page) is now lazy-loaded in a separate chunk, preventing initialisation errors in the HA Ingress iframe
+- Removed `React.StrictMode` which caused recharts v3 double-mount crashes in production
+- Main bundle reduced from 625 KB to 242 KB
+
 ## [0.1.3] - 2026-07-06
 
 ### Fixed
