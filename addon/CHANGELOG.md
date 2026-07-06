@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.8] - 2026-07-06
+
+### Fixed
+
+- Updated Grok model from `grok-2-vision-latest` (no longer exists) to `grok-4.3` — the current xAI flagship model with vision support
+- Improved Grok error logging: the full API error body is now captured and stored in `errorMessage` for easier debugging
+
 ## [0.1.7] - 2026-07-06
 
 ### Fixed

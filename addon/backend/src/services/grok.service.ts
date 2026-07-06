@@ -2,7 +2,7 @@ import axios from "axios";
 import { config } from "../config";
 
 const GROK_BASE_URL = "https://api.x.ai/v1";
-const MODEL = "grok-2-vision-latest";
+const MODEL = "grok-4.3";
 
 export interface GrokCardIdentification {
   name: string;
@@ -46,32 +46,42 @@ export async function identifyCardsFromImage(
     throw new Error("Grok API key is not configured");
   }
 
-  const response = await axios.post<GrokResponse>(
-    `${GROK_BASE_URL}/chat/completions`,
-    {
-      model: MODEL,
-      messages: [
-        {
-          role: "user",
-          content: [
-            { type: "text", text: IDENTIFICATION_PROMPT },
-            {
-              type: "image_url",
-              image_url: { url: `data:${mimeType};base64,${imageBase64}` },
-            },
-          ],
-        },
-      ],
-      temperature: 0,
-      max_tokens: 1024,
-    },
-    {
-      headers: {
-        Authorization: `Bearer ${config.grokApiKey}`,
-        "Content-Type": "application/json",
+  let response;
+  try {
+    response = await axios.post<GrokResponse>(
+      `${GROK_BASE_URL}/chat/completions`,
+      {
+        model: MODEL,
+        messages: [
+          {
+            role: "user",
+            content: [
+              { type: "text", text: IDENTIFICATION_PROMPT },
+              {
+                type: "image_url",
+                image_url: { url: `data:${mimeType};base64,${imageBase64}` },
+              },
+            ],
+          },
+        ],
+        temperature: 0,
+        max_tokens: 1024,
       },
-    },
-  );
+      {
+        headers: {
+          Authorization: `Bearer ${config.grokApiKey}`,
+          "Content-Type": "application/json",
+        },
+      },
+    );
+  } catch (err) {
+    if (axios.isAxiosError(err)) {
+      const body = JSON.stringify(err.response?.data ?? {});
+      console.error(`[grok] HTTP ${err.response?.status} — ${body}`);
+      throw new Error(`Grok API error ${err.response?.status}: ${body}`);
+    }
+    throw err;
+  }
 
   const content = response.data.choices[0]?.message?.content ?? "[]";
 
