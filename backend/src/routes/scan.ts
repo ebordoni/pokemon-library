@@ -1,9 +1,9 @@
 import { Request, Response, Router } from "express";
 import multer from "multer";
+import { config } from "../config";
 import { rowToCard, rowToSession } from "../db/helpers";
 import { getDb } from "../db/schema";
 import { scanQueue } from "../queue/scanQueue";
-import { config } from "../config";
 import type { CardRow, ScanSessionRow } from "../types";
 
 const router = Router();

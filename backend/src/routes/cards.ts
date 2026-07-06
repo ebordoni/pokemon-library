@@ -40,9 +40,7 @@ router.get("/", (req: Request, res: Response) => {
   const params: DBParam[] = [];
 
   if (q) {
-    conditions.push(
-      "(name LIKE ? OR set_name LIKE ? OR number = ?)",
-    );
+    conditions.push("(name LIKE ? OR set_name LIKE ? OR number = ?)");
     params.push(`%${q}%`, `%${q}%`, q);
   }
   if (type) {
