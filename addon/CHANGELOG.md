@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.1] - 2026-07-06
+
+### Fixed
+
+- Added `ingress_entry: /` so the **Open Web UI** button appears in the HA addon info page
+- Added `ports` section so the direct-access port (8099) is configurable in the **Network** tab
+
 ## [0.1.0] - 2026-07-06
 
 ### Added

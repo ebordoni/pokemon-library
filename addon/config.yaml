@@ -1,6 +1,6 @@
 name: "Pokemon Library"
 description: "Personal Pokémon TCG collection catalog with AI card identification"
-version: "0.1.0"
+version: "0.1.1"
 slug: "pokemon_library"
 init: false
 arch:
@@ -10,8 +10,13 @@ startup: services
 boot: auto
 ingress: true
 ingress_port: 8099
+ingress_entry: /
 panel_icon: "mdi:cards"
 panel_title: "Pokemon Library"
+ports:
+  8099/tcp: null
+ports_description:
+  8099/tcp: "Web interface (direct access)"
 options:
   grok_api_key: ""
 schema:
