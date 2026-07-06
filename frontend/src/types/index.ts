@@ -44,13 +44,35 @@ export interface ScanSession {
   createdAt: string;
   cardCount: number;
   identifiedCards: string[];
-  status: "pending" | "completed" | "error";
+  status: "pending" | "processing" | "completed" | "error";
   errorMessage?: string;
 }
 
 export interface ScanResponse {
   session: ScanSession;
   cards: ScanResultCard[];
+}
+
+/** Response from POST /api/scan (enqueue) */
+export interface ScanEnqueueResponse {
+  sessionId: number;
+  queuePosition: number;
+  statusUrl: string;
+}
+
+/** Response from GET /api/scan/:id (poll) */
+export interface ScanStatusResponse {
+  session: ScanSession;
+  cards: Card[];
+  queuePosition: number;
+}
+
+export interface CatalogStatus {
+  cardCount: number;
+  setCount: number;
+  lastUpdated: string | null;
+  isSeeding: boolean;
+  seedingProgress: string | null;
 }
 
 export interface CardFilters {

@@ -2,14 +2,16 @@ import axios from "axios";
 import type {
   Card,
   CardFilters,
+  CatalogStatus,
   CollectionStats,
   PaginatedCards,
-  ScanResponse,
+  ScanEnqueueResponse,
+  ScanStatusResponse,
 } from "../types";
 
 const apiClient = axios.create({
   baseURL: "/api",
-  timeout: 90_000, // 90 s — AI identification may take time
+  timeout: 90_000,
 });
 
 export const api = {
@@ -18,7 +20,7 @@ export const api = {
       "/health",
     ),
 
-  // ── Cards ────────────────────────────────────────────────────────────────
+  // ── Cards ──────────────────────────────────────────────────────────────
   getCards: (filters?: CardFilters) =>
     apiClient.get<PaginatedCards>("/cards", { params: filters }),
 
@@ -27,17 +29,28 @@ export const api = {
   deleteCard: (id: string) => apiClient.delete(`/cards/${id}`),
 
   updateQuantity: (id: string, quantity: number) =>
-    apiClient.patch(`/cards/${id}/quantity`, { quantity }),
+    apiClient.patch<Card>(`/cards/${id}/quantity`, { quantity }),
 
-  // ── Scan ─────────────────────────────────────────────────────────────────
+  // ── Scan ───────────────────────────────────────────────────────────────
+  /** Upload image → enqueue → returns sessionId immediately (202) */
   scanImage: (imageFile: File) => {
     const formData = new FormData();
     formData.append("image", imageFile);
-    return apiClient.post<ScanResponse>("/scan", formData, {
+    return apiClient.post<ScanEnqueueResponse>("/scan", formData, {
       headers: { "Content-Type": "multipart/form-data" },
+      timeout: 30_000,
     });
   },
 
-  // ── Stats ────────────────────────────────────────────────────────────────
+  getScanStatus: (sessionId: number) =>
+    apiClient.get<ScanStatusResponse>(`/scan/${sessionId}`),
+
+  // ── Stats ──────────────────────────────────────────────────────────────
   getStats: () => apiClient.get<CollectionStats>("/stats"),
+
+  // ── Catalog ────────────────────────────────────────────────────────────
+  getCatalogStatus: () => apiClient.get<CatalogStatus>("/catalog"),
+
+  triggerCatalogUpdate: () => apiClient.post("/catalog/update"),
 };
+
