@@ -3,6 +3,7 @@ import multer from "multer";
 import { rowToCard, rowToSession } from "../db/helpers";
 import { getDb } from "../db/schema";
 import { scanQueue } from "../queue/scanQueue";
+import { config } from "../config";
 import type { CardRow, ScanSessionRow } from "../types";
 
 const router = Router();
@@ -19,6 +20,14 @@ const upload = multer({
 
 // POST /api/scan — enqueue scan, return 202 immediately
 router.post("/", upload.single("image"), (req: Request, res: Response) => {
+  if (!config.grokApiKey) {
+    res.status(503).json({
+      error:
+        "Grok API key not configured. Set it in the addon Configuration panel.",
+    });
+    return;
+  }
+
   if (!req.file) {
     res.status(400).json({ error: "No image file provided" });
     return;

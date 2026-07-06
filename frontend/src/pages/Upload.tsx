@@ -11,6 +11,7 @@ export default function Upload() {
   const [sessionId, setSessionId] = useState<number | null>(null);
   const [queuePos, setQueuePos] = useState<number>(0);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
 
   const scanStatus = useScanStatus(stage === "polling" ? sessionId : null);
 
@@ -41,8 +42,11 @@ export default function Upload() {
       setSessionId(data.sessionId);
       setQueuePos(data.queuePosition);
       setStage("polling");
-    } catch {
-      setErrorMsg("Upload failed — please check your connection and try again");
+    } catch (err: unknown) {
+      const msg =
+        (err as { response?: { data?: { error?: string } } })?.response?.data
+          ?.error ?? "Upload failed — please check your connection and try again";
+      setErrorMsg(msg);
       setStage("error");
     }
   }, []);
@@ -51,7 +55,24 @@ export default function Upload() {
     setStage("idle");
     setSessionId(null);
     setErrorMsg(null);
+    setIsDragging(false);
     if (fileInputRef.current) fileInputRef.current.value = "";
+  }
+
+  function onDragOver(e: React.DragEvent) {
+    e.preventDefault();
+    setIsDragging(true);
+  }
+  function onDragLeave(e: React.DragEvent) {
+    if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+      setIsDragging(false);
+    }
+  }
+  function onDrop(e: React.DragEvent) {
+    e.preventDefault();
+    setIsDragging(false);
+    const file = e.dataTransfer.files[0];
+    if (file) void handleFile(file);
   }
 
   const processingMsg =
@@ -68,7 +89,7 @@ export default function Upload() {
       {/* ── IDLE ─────────────────────────────────────────────────────── */}
       {stage === "idle" && (
         <>
-          {/* Hidden file input with camera on mobile */}
+          {/* Hidden file input — opens camera on mobile, file picker on desktop */}
           <input
             ref={fileInputRef}
             type="file"
@@ -81,11 +102,23 @@ export default function Upload() {
             }}
           />
 
-          <button
+          {/* Drop zone / camera button */}
+          <div
+            onDragOver={onDragOver}
+            onDragLeave={onDragLeave}
+            onDrop={onDrop}
+            className={`w-full py-14 flex flex-col items-center justify-center gap-4 bg-white rounded-2xl border-2 border-dashed transition-colors cursor-pointer touch-manipulation active:scale-[0.98] ${
+              isDragging
+                ? "border-pokemon-blue bg-blue-50 scale-[0.99]"
+                : "border-gray-300 hover:border-pokemon-blue hover:bg-blue-50"
+            }`}
             onClick={() => fileInputRef.current?.click()}
-            className="w-full py-16 flex flex-col items-center justify-center gap-4 bg-white rounded-2xl border-2 border-dashed border-gray-300 hover:border-pokemon-blue hover:bg-blue-50 transition-colors touch-manipulation active:scale-[0.98]"
           >
-            <div className="w-20 h-20 rounded-full bg-pokemon-blue flex items-center justify-center">
+            <div
+              className={`w-20 h-20 rounded-full flex items-center justify-center transition-colors ${
+                isDragging ? "bg-blue-600" : "bg-pokemon-blue"
+              }`}
+            >
               <svg
                 className="w-10 h-10 text-white"
                 fill="none"
@@ -107,12 +140,22 @@ export default function Upload() {
               </svg>
             </div>
             <div className="text-center px-4">
-              <p className="font-semibold text-gray-800">Take a photo</p>
-              <p className="text-sm text-gray-500 mt-1">
-                Lay up to 4 cards face-up in good lighting
-              </p>
+              {isDragging ? (
+                <p className="font-semibold text-pokemon-blue">
+                  Drop your photo here
+                </p>
+              ) : (
+                <>
+                  <p className="font-semibold text-gray-800">
+                    Take a photo or drop an image
+                  </p>
+                  <p className="text-sm text-gray-500 mt-1">
+                    Lay up to 4 cards face-up in good lighting
+                  </p>
+                </>
+              )}
             </div>
-          </button>
+          </div>
 
           <p className="text-center text-xs text-gray-400 mt-4">
             Cards are identified by Grok Vision AI
@@ -198,9 +241,7 @@ export default function Upload() {
               />
             </svg>
           </div>
-          <p className="text-gray-700 text-center text-sm max-w-xs">
-            {errorMsg}
-          </p>
+          <p className="text-gray-700 text-center text-sm max-w-xs">{errorMsg}</p>
           <button
             onClick={reset}
             className="px-6 py-2.5 bg-pokemon-blue text-white rounded-xl text-sm font-medium touch-manipulation"

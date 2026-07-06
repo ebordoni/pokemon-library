@@ -5,8 +5,17 @@ import { useCollectionStore } from "../store/useCollectionStore";
 import type { CardFilters } from "../types";
 
 export default function Catalog() {
-  const { cards, total, isLoading, filters, fetchCards, setFilters } =
-    useCollectionStore();
+  const {
+    cards,
+    total,
+    isLoading,
+    isLoadingMore,
+    totalPages,
+    filters,
+    fetchCards,
+    setFilters,
+    loadMore,
+  } = useCollectionStore();
   const [searchValue, setSearchValue] = useState(filters.q ?? "");
 
   useEffect(() => {
@@ -15,7 +24,7 @@ export default function Catalog() {
 
   function handleSearch(q: string) {
     setSearchValue(q);
-    setFilters({ ...filters, q: q || undefined, page: 1 });
+    setFilters({ ...filters, q: q || undefined });
   }
 
   function handleFilters(newFilters: CardFilters) {
@@ -23,9 +32,7 @@ export default function Catalog() {
   }
 
   const page = filters.page ?? 1;
-  const limit = filters.limit ?? 24;
-  const hasNext = cards.length >= limit;
-  const hasPrev = page > 1;
+  const hasMore = page < totalPages;
 
   return (
     <div className="px-4 pt-6">
@@ -63,7 +70,7 @@ export default function Catalog() {
           type="search"
           value={searchValue}
           onChange={(e) => handleSearch(e.target.value)}
-          placeholder="Search cards…"
+          placeholder="Search by name, set or number…"
           className="w-full pl-9 pr-9 py-2.5 bg-white rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-pokemon-blue/30 focus:border-pokemon-blue"
         />
         {searchValue && (
@@ -95,7 +102,7 @@ export default function Catalog() {
           {filters.supertype && (
             <button
               onClick={() =>
-                setFilters({ ...filters, supertype: undefined, page: 1 })
+                setFilters({ ...filters, supertype: undefined })
               }
               className="px-3 py-1 bg-pokemon-blue text-white text-xs rounded-full touch-manipulation"
             >
@@ -105,7 +112,7 @@ export default function Catalog() {
           {filters.type && (
             <button
               onClick={() =>
-                setFilters({ ...filters, type: undefined, page: 1 })
+                setFilters({ ...filters, type: undefined })
               }
               className="px-3 py-1 bg-pokemon-blue text-white text-xs rounded-full touch-manipulation"
             >
@@ -115,7 +122,7 @@ export default function Catalog() {
           {filters.duplicates && (
             <button
               onClick={() =>
-                setFilters({ ...filters, duplicates: undefined, page: 1 })
+                setFilters({ ...filters, duplicates: undefined })
               }
               className="px-3 py-1 bg-pokemon-red text-white text-xs rounded-full touch-manipulation"
             >
@@ -127,23 +134,18 @@ export default function Catalog() {
 
       <CardGrid cards={cards} isLoading={isLoading} />
 
-      {/* Pagination */}
-      {(hasPrev || hasNext) && (
-        <div className="flex justify-center items-center gap-4 mt-6">
+      {/* Load More */}
+      {hasMore && !isLoading && (
+        <div className="flex justify-center mt-6">
           <button
-            onClick={() => setFilters({ ...filters, page: page - 1 })}
-            disabled={!hasPrev}
-            className="px-4 py-2 rounded-xl border border-gray-300 text-sm font-medium disabled:opacity-40 touch-manipulation hover:bg-gray-50"
+            onClick={() => void loadMore()}
+            disabled={isLoadingMore}
+            className="px-6 py-2.5 rounded-xl border border-gray-300 text-sm font-medium hover:bg-gray-50 touch-manipulation disabled:opacity-50 flex items-center gap-2"
           >
-            ← Prev
-          </button>
-          <span className="text-sm text-gray-500">Page {page}</span>
-          <button
-            onClick={() => setFilters({ ...filters, page: page + 1 })}
-            disabled={!hasNext}
-            className="px-4 py-2 rounded-xl border border-gray-300 text-sm font-medium disabled:opacity-40 touch-manipulation hover:bg-gray-50"
-          >
-            Next →
+            {isLoadingMore && (
+              <span className="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />
+            )}
+            {isLoadingMore ? "Loading…" : "Load more"}
           </button>
         </div>
       )}
@@ -152,3 +154,4 @@ export default function Catalog() {
     </div>
   );
 }
+

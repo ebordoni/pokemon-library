@@ -9,9 +9,11 @@ interface CollectionState {
   totalPages: number;
   filters: CardFilters;
   isLoading: boolean;
+  isLoadingMore: boolean;
   error: string | null;
 
   fetchCards: (filters?: CardFilters) => Promise<void>;
+  loadMore: () => Promise<void>;
   setFilters: (filters: CardFilters) => void;
   removeCard: (id: string) => Promise<void>;
 }
@@ -23,6 +25,7 @@ export const useCollectionStore = create<CollectionState>((set, get) => ({
   totalPages: 1,
   filters: { page: 1, limit: 24 },
   isLoading: false,
+  isLoadingMore: false,
   error: null,
 
   fetchCards: async (filters?: CardFilters) => {
@@ -44,9 +47,34 @@ export const useCollectionStore = create<CollectionState>((set, get) => ({
     }
   },
 
+  loadMore: async () => {
+    const { filters, cards, totalPages, isLoadingMore } = get();
+    const nextPage = (filters.page ?? 1) + 1;
+    if (isLoadingMore || nextPage > totalPages) return;
+    set({ isLoadingMore: true });
+    try {
+      const { data }: { data: PaginatedCards } = await api.getCards({
+        ...filters,
+        page: nextPage,
+      });
+      set({
+        cards: [...cards, ...data.data],
+        total: data.total,
+        page: data.page,
+        totalPages: data.totalPages,
+        filters: { ...filters, page: nextPage },
+        isLoadingMore: false,
+      });
+    } catch {
+      set({ isLoadingMore: false });
+    }
+  },
+
   setFilters: (filters: CardFilters) => {
-    set({ filters });
-    void get().fetchCards(filters);
+    // Reset to page 1 and replace cards whenever filters change
+    const normalized = { ...filters, page: 1 };
+    set({ filters: normalized });
+    void get().fetchCards(normalized);
   },
 
   removeCard: async (id: string) => {
