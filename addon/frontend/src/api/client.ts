@@ -9,11 +9,18 @@ import type {
   ScanStatusResponse,
 } from "../types";
 
+// HA Supervisor injects the ingress base path via the backend into
+// window.__INGRESS_BASE__ (e.g. "/api/hassio_ingress/<token>").
+// Fall back to document.baseURI resolution for local dev.
+declare global {
+  interface Window { __INGRESS_BASE__?: string; }
+}
+const baseURL = window.__INGRESS_BASE__
+  ? `${window.__INGRESS_BASE__.replace(/\/+$/, "")}/api`
+  : new URL("./api", document.baseURI).pathname;
+
 const apiClient = axios.create({
-  // Resolve "./api" relative to the document's base URI — works both in
-  // local dev (http://localhost:5173/) and under HA Ingress
-  // (http://ha-ip:8123/api/hassio_ingress/<token>/).
-  baseURL: new URL("./api", document.baseURI).pathname,
+  baseURL,
   timeout: 90_000,
 });
 

@@ -1,5 +1,6 @@
 import cors from "cors";
 import express, { NextFunction, Request, Response } from "express";
+import fs from "fs";
 import path from "path";
 import { config } from "./config";
 import { initDb } from "./db/schema";
@@ -38,9 +39,19 @@ app.get("/api/health", (_req: Request, res: Response) => {
 const frontendDir = process.env.FRONTEND_DIR;
 if (frontendDir) {
   app.use(express.static(frontendDir));
-  // SPA fallback — must come after API routes
-  app.get("*", (_req: Request, res: Response) => {
-    res.sendFile(path.join(frontendDir, "index.html"));
+  // SPA fallback: inject the HA Ingress base path so the frontend can build
+  // correct API URLs regardless of the ingress token.
+  const indexHtmlPath = path.join(frontendDir, "index.html");
+  app.get("*", (req: Request, res: Response) => {
+    const ingressBase = (req.headers["x-ingress-path"] as string | undefined) ?? "";
+    let html = fs.readFileSync(indexHtmlPath, "utf-8");
+    if (ingressBase) {
+      html = html.replace(
+        "</head>",
+        `<script>window.__INGRESS_BASE__="${ingressBase}"</script></head>`,
+      );
+    }
+    res.type("html").send(html);
   });
 }
 

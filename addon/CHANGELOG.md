@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.1.6] - 2026-07-06
+
+### Fixed
+
+- API base URL is now injected server-side from the `X-Ingress-Path` header that HA Supervisor provides (`window.__INGRESS_BASE__`), eliminating all double-slash and path-guessing issues in the HA Ingress iframe
+
 ## [0.1.5] - 2026-07-06
 
 ### Fixed
