@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.1.3] - 2026-07-06
+
+### Fixed
+
+- API calls now use a path relative to `window.location.pathname` so they are correctly routed through HA Ingress instead of hitting the HA root API
+
 ## [0.1.2] - 2026-07-06
 
 ### Fixed
