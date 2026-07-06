@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.1.10] - 2026-07-07
+
+### Fixed
+
+- `dotenv` spostato da `devDependencies` a `dependencies`: il modulo viene caricato a runtime anche in produzione (il container HA installa solo le dipendenze di produzione), quindi deve essere presente nel bundle finale
+
 ## [0.1.9] - 2026-07-06
 
 ### Added
