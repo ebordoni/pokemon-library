@@ -45,7 +45,7 @@ export default function FilterDrawer({ filters, onFiltersChange }: Props) {
       <button
         onClick={() => setOpen(true)}
         className="relative flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-gray-300 bg-white text-sm text-gray-700 hover:bg-gray-50 active:bg-gray-100 touch-manipulation"
-        aria-label="Open filters"
+        aria-label="Apri filtri"
       >
         <svg
           className="w-4 h-4 shrink-0"
@@ -60,7 +60,7 @@ export default function FilterDrawer({ filters, onFiltersChange }: Props) {
             d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V19a1 1 0 01-.553.894l-4 2A1 1 0 017 21v-7.586L3.293 6.707A1 1 0 013 6V4z"
           />
         </svg>
-        Filters
+        Filtri
         {activeCount > 0 && (
           <span className="absolute -top-1.5 -right-1.5 bg-pokemon-red text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold leading-none">
             {activeCount}
@@ -91,12 +91,12 @@ export default function FilterDrawer({ filters, onFiltersChange }: Props) {
         <div className="px-4 pb-4 max-h-[80dvh] overflow-y-auto">
           <div className="flex justify-between items-center mb-4">
             <h2 className="font-semibold text-lg text-gray-900">
-              Filter Cards
+              Filtra Carte
             </h2>
             <button
               onClick={() => setOpen(false)}
               className="p-1.5 rounded-full hover:bg-gray-100 touch-manipulation"
-              aria-label="Close"
+              aria-label="Chiudi"
             >
               <svg
                 className="w-5 h-5 text-gray-500"
@@ -115,7 +115,7 @@ export default function FilterDrawer({ filters, onFiltersChange }: Props) {
           </div>
 
           {/* Supertype */}
-          <p className="text-sm font-medium text-gray-600 mb-2">Category</p>
+          <p className="text-sm font-medium text-gray-600 mb-2">Categoria</p>
           <div className="flex gap-2 flex-wrap mb-4">
             {SUPERTYPES.map((st) => (
               <button
@@ -140,7 +140,7 @@ export default function FilterDrawer({ filters, onFiltersChange }: Props) {
           </div>
 
           {/* Energy type */}
-          <p className="text-sm font-medium text-gray-600 mb-2">Energy Type</p>
+          <p className="text-sm font-medium text-gray-600 mb-2">Tipo Energia</p>
           <div className="flex gap-2 flex-wrap mb-4">
             {ENERGY_TYPES.map((t) => (
               <button
@@ -170,7 +170,7 @@ export default function FilterDrawer({ filters, onFiltersChange }: Props) {
                 : "border-gray-300 text-gray-700 hover:bg-gray-50"
             }`}
           >
-            {filters.duplicates ? "✓ Duplicates only" : "Show duplicates only"}
+            {filters.duplicates ? "✓ Solo duplicati" : "Solo duplicati"}
           </button>
 
           {/* Actions */}
@@ -179,13 +179,13 @@ export default function FilterDrawer({ filters, onFiltersChange }: Props) {
               onClick={clear}
               className="flex-1 py-2.5 rounded-xl text-sm font-medium border border-gray-300 text-gray-700 hover:bg-gray-50 touch-manipulation"
             >
-              Clear all
+              Azzera
             </button>
             <button
               onClick={() => setOpen(false)}
               className="flex-1 py-2.5 rounded-xl text-sm font-medium bg-pokemon-blue text-white hover:bg-blue-700 touch-manipulation"
             >
-              Apply
+              Applica
             </button>
           </div>
         </div>

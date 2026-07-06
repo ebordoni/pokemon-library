@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.1.9] - 2026-07-06
+
+### Added
+
+- Interfaccia completamente tradotta in italiano (navigazione, filtri, statistiche, dettaglio carta, upload)
+
+### Fixed
+
+- Pagina "Aggiungi Carte" bloccata senza box di upload dopo la scansione: il risultato finale viene ora salvato in `finalResult` prima del cambio di stage, evitando il reset asincrono di `useScanStatus`
+- Intervallo di polling aumentato da 2 s a 5 s (retry su errore: 8 s) per ridurre le chiamate superflue durante l'elaborazione Grok
+
 ## [0.1.8] - 2026-07-06
 
 ### Fixed

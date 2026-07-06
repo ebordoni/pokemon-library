@@ -3,7 +3,7 @@ import { NavLink } from "react-router-dom";
 const NAV_ITEMS = [
   {
     to: "/catalog",
-    label: "Collection",
+    label: "Collezione",
     icon: (
       <svg
         className="w-6 h-6"
@@ -22,7 +22,7 @@ const NAV_ITEMS = [
   },
   {
     to: "/upload",
-    label: "Scan",
+    label: "Scansione",
     icon: (
       <svg
         className="w-6 h-6"
@@ -47,7 +47,7 @@ const NAV_ITEMS = [
   },
   {
     to: "/stats",
-    label: "Stats",
+    label: "Statistiche",
     icon: (
       <svg
         className="w-6 h-6"

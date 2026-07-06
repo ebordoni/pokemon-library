@@ -40,11 +40,11 @@ export default function Catalog() {
       <div className="flex items-center justify-between mb-4">
         <div>
           <h1 className="text-xl font-bold text-gray-900 leading-tight">
-            My Collection
+            La mia Collezione
           </h1>
           {total > 0 && (
             <p className="text-sm text-gray-500">
-              {total.toLocaleString()} card{total !== 1 ? "s" : ""}
+              {total.toLocaleString()} {total === 1 ? "carta" : "carte"}
             </p>
           )}
         </div>
@@ -70,14 +70,14 @@ export default function Catalog() {
           type="search"
           value={searchValue}
           onChange={(e) => handleSearch(e.target.value)}
-          placeholder="Search by name, set or number…"
+          placeholder="Cerca per nome, set o numero…"
           className="w-full pl-9 pr-9 py-2.5 bg-white rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-pokemon-blue/30 focus:border-pokemon-blue"
         />
         {searchValue && (
           <button
             onClick={() => handleSearch("")}
             className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 touch-manipulation"
-            aria-label="Clear search"
+            aria-label="Cancella ricerca"
           >
             <svg
               className="w-4 h-4"
@@ -126,7 +126,7 @@ export default function Catalog() {
               }
               className="px-3 py-1 bg-pokemon-red text-white text-xs rounded-full touch-manipulation"
             >
-              Duplicates ×
+              Duplicati ×
             </button>
           )}
         </div>

@@ -76,7 +76,7 @@ export default function Stats() {
   if (!stats || stats.totalCards === 0) {
     return (
       <div className="px-4 pt-6">
-        <h1 className="text-xl font-bold text-gray-900 mb-6">Statistics</h1>
+        <h1 className="text-xl font-bold text-gray-900 mb-6">Statistiche</h1>
         <div className="flex flex-col items-center justify-center py-24 text-gray-400 gap-2">
           <svg
             className="w-12 h-12"
@@ -91,8 +91,8 @@ export default function Stats() {
               d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
             />
           </svg>
-          <p className="font-medium">No data yet</p>
-          <p className="text-sm">Scan some cards to see statistics</p>
+          <p className="font-medium">Nessun dato</p>
+          <p className="text-sm">Scansiona delle carte per vedere le statistiche</p>
         </div>
       </div>
     );
@@ -116,14 +116,14 @@ export default function Stats() {
 
   return (
     <div className="px-4 pt-6 space-y-5">
-      <h1 className="text-xl font-bold text-gray-900">Statistics</h1>
+      <h1 className="text-xl font-bold text-gray-900">Statistiche</h1>
 
       {/* Summary */}
       <div className="grid grid-cols-3 gap-3">
-        <StatCard label="Total cards" value={stats.totalCards} />
-        <StatCard label="Unique" value={stats.uniqueCards} />
+        <StatCard label="Totale carte" value={stats.totalCards} />
+        <StatCard label="Uniche" value={stats.uniqueCards} />
         <StatCard
-          label="Duplicates"
+          label="Duplicate"
           value={stats.duplicateCards}
           accent={stats.duplicateCards > 0 ? "text-pokemon-red" : "text-gray-900"}
         />
@@ -132,7 +132,7 @@ export default function Stats() {
       {/* By Supertype — donut */}
       {supertypeData.length > 0 && (
         <div className="bg-white rounded-xl p-4 shadow-sm">
-          <p className="text-sm font-semibold text-gray-700 mb-1">Category</p>
+          <p className="text-sm font-semibold text-gray-700 mb-1">Categoria</p>
           <div className="flex items-center gap-4">
             <div className="shrink-0" style={{ width: 130, height: 130 }}>
               <ResponsiveContainer width="100%" height="100%">
@@ -155,7 +155,7 @@ export default function Stats() {
                       />
                     ))}
                   </Pie>
-                  <Tooltip formatter={(v) => [`${v} cards`, ""]} />
+                  <Tooltip formatter={(v) => [`${v} carte`, ""]} />
                 </PieChart>
               </ResponsiveContainer>
             </div>
@@ -181,7 +181,7 @@ export default function Stats() {
       {typeData.length > 0 && (
         <div className="bg-white rounded-xl p-4 shadow-sm">
           <p className="text-sm font-semibold text-gray-700 mb-3">
-            Energy Types
+            Tipi Energia
           </p>
           <ResponsiveContainer
             width="100%"
@@ -203,7 +203,7 @@ export default function Stats() {
               />
               <Tooltip
                 cursor={{ fill: "#f3f4f6" }}
-                formatter={(v) => [`${v} cards`, ""]}
+                formatter={(v) => [`${v} carte`, ""]}
               />
               <Bar dataKey="value" radius={[0, 4, 4, 0]}>
                 {typeData.map((entry) => (
@@ -221,7 +221,7 @@ export default function Stats() {
       {/* Rarity */}
       {rarityData.length > 0 && (
         <div className="bg-white rounded-xl p-4 shadow-sm">
-          <p className="text-sm font-semibold text-gray-700 mb-3">Rarity</p>
+          <p className="text-sm font-semibold text-gray-700 mb-3">Rarità</p>
           <ResponsiveContainer
             width="100%"
             height={Math.max(120, rarityData.length * 28)}
@@ -242,7 +242,7 @@ export default function Stats() {
               />
               <Tooltip
                 cursor={{ fill: "#f3f4f6" }}
-                formatter={(v) => [`${v} cards`, ""]}
+                formatter={(v) => [`${v} carte`, ""]}
               />
               <Bar dataKey="value" fill="#3b82f6" radius={[0, 4, 4, 0]} />
             </BarChart>
@@ -253,7 +253,7 @@ export default function Stats() {
       {/* Top 10 Sets — CSS progress bars */}
       {stats.topSets.length > 0 && (
         <div className="bg-white rounded-xl p-4 shadow-sm">
-          <p className="text-sm font-semibold text-gray-700 mb-3">Top Sets</p>
+          <p className="text-sm font-semibold text-gray-700 mb-3">Set più frequenti</p>
           <div className="space-y-2.5">
             {stats.topSets.map(({ setName, count }) => {
               const pct = Math.round((count / maxSet) * 100);

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { api } from "../api/client";
 import CardTile from "../components/CardTile";
 import { useScanStatus } from "../hooks/useScanStatus";
+import type { ScanStatusResponse } from "../types";
 
 type Stage = "idle" | "uploading" | "polling" | "done" | "error";
 
@@ -14,14 +15,18 @@ export default function Upload() {
   const [isDragging, setIsDragging] = useState(false);
 
   const scanStatus = useScanStatus(stage === "polling" ? sessionId : null);
+  const [finalResult, setFinalResult] = useState<ScanStatusResponse | null>(null);
 
   // Transition out of polling when scan reaches a terminal state
   useEffect(() => {
     if (!scanStatus || stage !== "polling") return;
     const s = scanStatus.session.status;
-    if (s === "completed") setStage("done");
+    if (s === "completed") {
+      setFinalResult(scanStatus);
+      setStage("done");
+    }
     if (s === "error") {
-      setErrorMsg(scanStatus.session.errorMessage ?? "Scan failed");
+      setErrorMsg(scanStatus.session.errorMessage ?? "Scansione fallita");
       setStage("error");
     }
     if (scanStatus.queuePosition !== undefined) {
@@ -31,7 +36,7 @@ export default function Upload() {
 
   const handleFile = useCallback(async (file: File) => {
     if (!file.type.startsWith("image/")) {
-      setErrorMsg("Please select an image file");
+      setErrorMsg("Seleziona un file immagine");
       setStage("error");
       return;
     }
@@ -45,7 +50,7 @@ export default function Upload() {
     } catch (err: unknown) {
       const msg =
         (err as { response?: { data?: { error?: string } } })?.response?.data
-          ?.error ?? "Upload failed — please check your connection and try again";
+          ?.error ?? "Caricamento fallito — controlla la connessione e riprova";
       setErrorMsg(msg);
       setStage("error");
     }
@@ -56,6 +61,7 @@ export default function Upload() {
     setSessionId(null);
     setErrorMsg(null);
     setIsDragging(false);
+    setFinalResult(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
   }
 
@@ -77,14 +83,14 @@ export default function Upload() {
 
   const processingMsg =
     scanStatus?.session.status === "processing"
-      ? "Identifying cards with AI…"
+      ? "Identificazione carte con AI…"
       : queuePos > 1
-        ? `Waiting in queue (position ${queuePos})…`
-        : "Starting scan…";
+        ? `In coda (posizione ${queuePos})…`
+        : "Avvio scansione…";
 
   return (
     <div className="max-w-md mx-auto px-4 pt-6">
-      <h1 className="text-xl font-bold text-gray-900 mb-6">Add Cards</h1>
+      <h1 className="text-xl font-bold text-gray-900 mb-6">Aggiungi Carte</h1>
 
       {/* ── IDLE ─────────────────────────────────────────────────────── */}
       {stage === "idle" && (
@@ -142,15 +148,15 @@ export default function Upload() {
             <div className="text-center px-4">
               {isDragging ? (
                 <p className="font-semibold text-pokemon-blue">
-                  Drop your photo here
+                  Rilascia la foto qui
                 </p>
               ) : (
                 <>
                   <p className="font-semibold text-gray-800">
-                    Take a photo or drop an image
+                    Scatta una foto o trascina un'immagine
                   </p>
                   <p className="text-sm text-gray-500 mt-1">
-                    Lay up to 4 cards face-up in good lighting
+                    Disponi fino a 4 carte faccia in su, con buona luce
                   </p>
                 </>
               )}
@@ -158,7 +164,7 @@ export default function Upload() {
           </div>
 
           <p className="text-center text-xs text-gray-400 mt-4">
-            Cards are identified by Grok Vision AI
+            Le carte vengono identificate da Grok Vision AI
           </p>
         </>
       )}
@@ -167,7 +173,7 @@ export default function Upload() {
       {stage === "uploading" && (
         <div className="flex flex-col items-center justify-center py-24 gap-4">
           <div className="w-12 h-12 border-4 border-pokemon-blue border-t-transparent rounded-full animate-spin" />
-          <p className="text-gray-600">Uploading photo…</p>
+          <p className="text-gray-600">Caricamento foto…</p>
         </div>
       )}
 
@@ -178,45 +184,47 @@ export default function Upload() {
           <div className="text-center">
             <p className="text-gray-700 font-medium">{processingMsg}</p>
             <p className="text-xs text-gray-400 mt-1">
-              This may take 10–30 seconds
+              Potrebbe richiedere 10–30 secondi
             </p>
           </div>
         </div>
       )}
 
       {/* ── DONE ─────────────────────────────────────────────────────── */}
-      {stage === "done" && scanStatus && (
+      {stage === "done" && finalResult && (
         <div>
           <div className="flex items-center justify-between mb-4">
             <p className="font-semibold text-gray-900">
-              {scanStatus.cards.length === 0
-                ? "No cards recognised"
-                : `Found ${scanStatus.cards.length} card${scanStatus.cards.length !== 1 ? "s" : ""}`}
+              {finalResult.cards.length === 0
+                ? "Nessuna carta riconosciuta"
+                : finalResult.cards.length === 1
+                  ? "Trovata 1 carta"
+                  : `Trovate ${finalResult.cards.length} carte`}
             </p>
             <button
               onClick={reset}
               className="text-sm text-pokemon-blue font-medium touch-manipulation"
             >
-              Scan more
+              Scansiona altre
             </button>
           </div>
 
-          {scanStatus.cards.length > 0 ? (
+          {finalResult.cards.length > 0 ? (
             <div className="grid grid-cols-2 gap-3">
-              {scanStatus.cards.map((card) => (
+              {finalResult.cards.map((card) => (
                 <CardTile key={card.id} card={card} />
               ))}
             </div>
           ) : (
             <div className="text-center py-12 text-gray-400">
               <p className="text-sm">
-                Try again with better lighting or closer framing
+                Riprova con più luce o avvicinati alle carte
               </p>
               <button
                 onClick={reset}
                 className="mt-4 px-6 py-2.5 bg-pokemon-blue text-white rounded-xl text-sm font-medium touch-manipulation"
               >
-                Try again
+                Riprova
               </button>
             </div>
           )}
@@ -246,7 +254,7 @@ export default function Upload() {
             onClick={reset}
             className="px-6 py-2.5 bg-pokemon-blue text-white rounded-xl text-sm font-medium touch-manipulation"
           >
-            Try again
+            Riprova
           </button>
         </div>
       )}

@@ -51,7 +51,7 @@ export default function CatalogStatusBanner() {
         />
       </svg>
       <span>
-        Building card catalog…
+        Costruzione catalogo carte…
         {status.seedingProgress && (
           <span className="text-yellow-600 ml-1 text-xs">
             {status.seedingProgress}

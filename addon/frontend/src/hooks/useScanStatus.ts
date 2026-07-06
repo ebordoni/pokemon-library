@@ -3,7 +3,7 @@ import { api } from "../api/client";
 import type { ScanStatusResponse } from "../types";
 
 /**
- * Polls GET /api/scan/:sessionId every 2 seconds until the scan reaches
+ * Polls GET /api/scan/:sessionId every 5 seconds until the scan reaches
  * a terminal state (completed or error). Cleans up on unmount or when
  * sessionId changes.
  */
@@ -29,11 +29,11 @@ export function useScanStatus(
 
         const s = data.session.status;
         if (s === "pending" || s === "processing") {
-          timerRef.current = setTimeout(() => void poll(), 2_000);
+          timerRef.current = setTimeout(() => void poll(), 5_000);
         }
       } catch {
         if (!cancelled) {
-          timerRef.current = setTimeout(() => void poll(), 3_000);
+          timerRef.current = setTimeout(() => void poll(), 8_000);
         }
       }
     };

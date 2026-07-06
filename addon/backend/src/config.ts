@@ -1,5 +1,11 @@
+import dotenv from "dotenv";
 import fs from "fs";
 import path from "path";
+
+// Load .env from project root in development (no-op in production / HA addon)
+if (process.env.NODE_ENV !== "production") {
+  dotenv.config({ path: path.resolve(__dirname, "../../../.env") });
+}
 
 interface AppConfig {
   grokApiKey: string;

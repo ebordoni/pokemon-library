@@ -17,7 +17,7 @@ export default function CardDetail() {
     api
       .getCard(id)
       .then(({ data }) => setCard(data))
-      .catch(() => setError("Card not found"))
+      .catch(() => setError("Carta non trovata"))
       .finally(() => setIsLoading(false));
   }, [id]);
 
@@ -44,12 +44,12 @@ export default function CardDetail() {
   if (error || !card) {
     return (
       <div className="flex flex-col items-center justify-center py-32 gap-4 px-4">
-        <p className="text-gray-600">{error ?? "Card not found"}</p>
+        <p className="text-gray-600">{error ?? "Carta non trovata"}</p>
         <button
           onClick={() => navigate(-1)}
           className="text-pokemon-blue font-medium touch-manipulation"
         >
-          Go back
+          Torna indietro
         </button>
       </div>
     );
@@ -102,7 +102,7 @@ export default function CardDetail() {
             <p className="font-medium text-gray-900 text-sm">{card.setName}</p>
           </div>
           <div className="text-right">
-            <p className="text-xs text-gray-400 mb-0.5">Number</p>
+            <p className="text-xs text-gray-400 mb-0.5">Numero</p>
             <p className="font-medium text-gray-900 text-sm">#{card.number}</p>
           </div>
         </div>
@@ -111,7 +111,7 @@ export default function CardDetail() {
         <div className="bg-white rounded-xl p-4 shadow-sm space-y-2.5">
           {card.types.length > 0 && (
             <div className="flex items-center justify-between">
-              <span className="text-xs text-gray-400">Type</span>
+              <span className="text-xs text-gray-400">Tipo</span>
               <div className="flex gap-1">
                 {card.types.map((t) => (
                   <TypeBadge key={t} type={t} />
@@ -129,13 +129,13 @@ export default function CardDetail() {
           )}
           {card.rarity && (
             <div className="flex items-center justify-between">
-              <span className="text-xs text-gray-400">Rarity</span>
+              <span className="text-xs text-gray-400">Rarità</span>
               <span className="text-sm text-gray-700">{card.rarity}</span>
             </div>
           )}
           {card.evolvesFrom && (
             <div className="flex items-center justify-between">
-              <span className="text-xs text-gray-400">Evolves from</span>
+              <span className="text-xs text-gray-400">Si evolve da</span>
               <span className="text-sm text-gray-700">{card.evolvesFrom}</span>
             </div>
           )}
@@ -145,7 +145,7 @@ export default function CardDetail() {
         {card.attacks.length > 0 && (
           <div className="bg-white rounded-xl p-4 shadow-sm">
             <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
-              Attacks
+              Attacchi
             </p>
             <div className="space-y-3">
               {card.attacks.map((attack, i) => (
@@ -181,12 +181,12 @@ export default function CardDetail() {
 
         {/* Quantity control */}
         <div className="bg-white rounded-xl p-4 shadow-sm">
-          <p className="text-xs text-gray-400 mb-3">Copies in collection</p>
+          <p className="text-xs text-gray-400 mb-3">Copie nella collezione</p>
           <div className="flex items-center justify-between">
             <button
               onClick={() => void handleQuantity(-1)}
               className="w-11 h-11 rounded-full border border-gray-300 flex items-center justify-center text-xl font-light hover:bg-gray-50 active:scale-95 touch-manipulation"
-              aria-label="Remove one"
+              aria-label="Rimuovi uno"
             >
               −
             </button>
@@ -196,14 +196,14 @@ export default function CardDetail() {
             <button
               onClick={() => void handleQuantity(1)}
               className="w-11 h-11 rounded-full bg-pokemon-blue text-white flex items-center justify-center text-xl font-light hover:bg-blue-700 active:scale-95 touch-manipulation"
-              aria-label="Add one"
+              aria-label="Aggiungi uno"
             >
               +
             </button>
           </div>
           {card.quantity > 1 && (
             <p className="text-center text-xs text-pokemon-red mt-2 font-medium">
-              Duplicate ×{card.quantity}
+              Duplicata ×{card.quantity}
             </p>
           )}
         </div>
@@ -213,7 +213,7 @@ export default function CardDetail() {
           onClick={() => void handleQuantity(-card.quantity)}
           className="w-full py-3 rounded-xl border border-red-200 text-red-500 text-sm font-medium hover:bg-red-50 active:bg-red-100 touch-manipulation"
         >
-          Remove from collection
+          Rimuovi dalla collezione
         </button>
 
         <div className="h-4" />
