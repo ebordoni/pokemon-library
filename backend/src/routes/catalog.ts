@@ -21,7 +21,12 @@ router.post("/update", (_req: Request, res: Response) => {
   }
 
   void seedCatalog();
-  res.status(202).json({ message: "Catalog update started in background. Check GET /api/catalog for progress." });
+  res
+    .status(202)
+    .json({
+      message:
+        "Catalog update started in background. Check GET /api/catalog for progress.",
+    });
 });
 
 export default router;

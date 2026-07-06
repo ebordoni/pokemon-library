@@ -53,4 +53,3 @@ export const api = {
 
   triggerCatalogUpdate: () => apiClient.post("/catalog/update"),
 };
-

@@ -56,7 +56,7 @@ router.get("/", (_req: Request, res: Response) => {
     .prepare(
       "SELECT set_name as setName, SUM(quantity) as count FROM cards GROUP BY set_id ORDER BY count DESC LIMIT 10",
     )
-    .all() as CollectionStats['topSets'];
+    .all() as CollectionStats["topSets"];
 
   res.json({
     totalCards: totals.totalCards,

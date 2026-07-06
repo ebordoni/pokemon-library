@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import CardTile from "../components/CardTile";
 import { api } from "../api/client";
+import CardTile from "../components/CardTile";
 import { useScanStatus } from "../hooks/useScanStatus";
 
 type Stage = "idle" | "uploading" | "polling" | "done" | "error";
@@ -58,8 +58,8 @@ export default function Upload() {
     scanStatus?.session.status === "processing"
       ? "Identifying cards with AI…"
       : queuePos > 1
-      ? `Waiting in queue (position ${queuePos})…`
-      : "Starting scan…";
+        ? `Waiting in queue (position ${queuePos})…`
+        : "Starting scan…";
 
   return (
     <div className="max-w-md mx-auto px-4 pt-6">
@@ -86,9 +86,24 @@ export default function Upload() {
             className="w-full py-16 flex flex-col items-center justify-center gap-4 bg-white rounded-2xl border-2 border-dashed border-gray-300 hover:border-pokemon-blue hover:bg-blue-50 transition-colors touch-manipulation active:scale-[0.98]"
           >
             <div className="w-20 h-20 rounded-full bg-pokemon-blue flex items-center justify-center">
-              <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+              <svg
+                className="w-10 h-10 text-white"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1.5}
+                  d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
+                />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1.5}
+                  d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"
+                />
               </svg>
             </div>
             <div className="text-center px-4">
@@ -119,7 +134,9 @@ export default function Upload() {
           <div className="w-12 h-12 border-4 border-pokemon-yellow border-t-transparent rounded-full animate-spin" />
           <div className="text-center">
             <p className="text-gray-700 font-medium">{processingMsg}</p>
-            <p className="text-xs text-gray-400 mt-1">This may take 10–30 seconds</p>
+            <p className="text-xs text-gray-400 mt-1">
+              This may take 10–30 seconds
+            </p>
           </div>
         </div>
       )}
@@ -149,7 +166,9 @@ export default function Upload() {
             </div>
           ) : (
             <div className="text-center py-12 text-gray-400">
-              <p className="text-sm">Try again with better lighting or closer framing</p>
+              <p className="text-sm">
+                Try again with better lighting or closer framing
+              </p>
               <button
                 onClick={reset}
                 className="mt-4 px-6 py-2.5 bg-pokemon-blue text-white rounded-xl text-sm font-medium touch-manipulation"
@@ -165,11 +184,23 @@ export default function Upload() {
       {stage === "error" && (
         <div className="flex flex-col items-center justify-center py-24 gap-4">
           <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center">
-            <svg className="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            <svg
+              className="w-8 h-8 text-red-500"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+              />
             </svg>
           </div>
-          <p className="text-gray-700 text-center text-sm max-w-xs">{errorMsg}</p>
+          <p className="text-gray-700 text-center text-sm max-w-xs">
+            {errorMsg}
+          </p>
           <button
             onClick={reset}
             className="px-6 py-2.5 bg-pokemon-blue text-white rounded-xl text-sm font-medium touch-manipulation"

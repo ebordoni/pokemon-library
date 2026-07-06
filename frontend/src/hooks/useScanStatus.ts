@@ -7,7 +7,9 @@ import type { ScanStatusResponse } from "../types";
  * a terminal state (completed or error). Cleans up on unmount or when
  * sessionId changes.
  */
-export function useScanStatus(sessionId: number | null): ScanStatusResponse | null {
+export function useScanStatus(
+  sessionId: number | null,
+): ScanStatusResponse | null {
   const [status, setStatus] = useState<ScanStatusResponse | null>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 

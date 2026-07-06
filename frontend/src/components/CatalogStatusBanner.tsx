@@ -22,7 +22,9 @@ export default function CatalogStatusBanner() {
     };
 
     void check();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   if (!status?.isSeeding) return null;
@@ -34,13 +36,26 @@ export default function CatalogStatusBanner() {
         fill="none"
         viewBox="0 0 24 24"
       >
-        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+        <circle
+          className="opacity-25"
+          cx="12"
+          cy="12"
+          r="10"
+          stroke="currentColor"
+          strokeWidth="4"
+        />
+        <path
+          className="opacity-75"
+          fill="currentColor"
+          d="M4 12a8 8 0 018-8v8z"
+        />
       </svg>
       <span>
         Building card catalog…
         {status.seedingProgress && (
-          <span className="text-yellow-600 ml-1 text-xs">{status.seedingProgress}</span>
+          <span className="text-yellow-600 ml-1 text-xs">
+            {status.seedingProgress}
+          </span>
         )}
       </span>
     </div>

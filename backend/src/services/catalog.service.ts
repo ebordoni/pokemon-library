@@ -73,7 +73,11 @@ export function getCatalogStatus(): CatalogStatus {
         MAX(imported_at)      AS lastUpdated
        FROM card_catalog`,
     )
-    .get() as { cardCount: number; setCount: number; lastUpdated: string | null };
+    .get() as {
+    cardCount: number;
+    setCount: number;
+    lastUpdated: string | null;
+  };
 
   return {
     cardCount: stats.cardCount,
@@ -158,50 +162,50 @@ export async function seedCatalog(): Promise<void> {
 
       if (!cards.length) continue;
 
-        // Wrap each set in a transaction for speed (10x–50x faster than row-by-row)
-        db.exec("BEGIN");
-        try {
-          for (const card of cards) {
-            // Defensive: some older entries may have set as a string or be missing
-            const setId: string =
-              typeof card.set === "object" && card.set !== null
-                ? card.set.id
-                : (card.set as unknown as string) ?? set.id;
-            const setName: string =
-              typeof card.set === "object" && card.set !== null
-                ? card.set.name
-                : set.name;
+      // Wrap each set in a transaction for speed (10x–50x faster than row-by-row)
+      db.exec("BEGIN");
+      try {
+        for (const card of cards) {
+          // Defensive: some older entries may have set as a string or be missing
+          const setId: string =
+            typeof card.set === "object" && card.set !== null
+              ? card.set.id
+              : ((card.set as unknown as string) ?? set.id);
+          const setName: string =
+            typeof card.set === "object" && card.set !== null
+              ? card.set.name
+              : set.name;
 
-            insertCard.run({
-              id: card.id,
-              name: card.name,
-              supertype: card.supertype,
-              subtypes: JSON.stringify(card.subtypes ?? []),
-              hp: card.hp ? parseInt(card.hp, 10) : null,
-              types: JSON.stringify(card.types ?? []),
-              evolvesFrom: card.evolvesFrom ?? null,
-              attacks: JSON.stringify(card.attacks ?? []),
-              weaknesses: JSON.stringify(card.weaknesses ?? []),
-              setId,
-              setName,
-              number: card.number,
-              rarity: card.rarity ?? null,
-              imageSmall:
-                card.images?.small ??
-                `https://images.pokemontcg.io/${setId}/${card.number}.png`,
-              imageLarge:
-                card.images?.large ??
-                `https://images.pokemontcg.io/${setId}/${card.number}_hires.png`,
-            });
-          }
-          db.exec("COMMIT");
-        } catch (txErr) {
-          db.exec("ROLLBACK");
-          throw txErr;
+          insertCard.run({
+            id: card.id,
+            name: card.name,
+            supertype: card.supertype,
+            subtypes: JSON.stringify(card.subtypes ?? []),
+            hp: card.hp ? parseInt(card.hp, 10) : null,
+            types: JSON.stringify(card.types ?? []),
+            evolvesFrom: card.evolvesFrom ?? null,
+            attacks: JSON.stringify(card.attacks ?? []),
+            weaknesses: JSON.stringify(card.weaknesses ?? []),
+            setId,
+            setName,
+            number: card.number,
+            rarity: card.rarity ?? null,
+            imageSmall:
+              card.images?.small ??
+              `https://images.pokemontcg.io/${setId}/${card.number}.png`,
+            imageLarge:
+              card.images?.large ??
+              `https://images.pokemontcg.io/${setId}/${card.number}_hires.png`,
+          });
         }
+        db.exec("COMMIT");
+      } catch (txErr) {
+        db.exec("ROLLBACK");
+        throw txErr;
+      }
 
-        totalCards += cards.length;
-        console.log(`[catalog] ✓ ${set.name} (${cards.length} cards)`);
+      totalCards += cards.length;
+      console.log(`[catalog] ✓ ${set.name} (${cards.length} cards)`);
     }
 
     console.log(
@@ -255,9 +259,7 @@ export function searchCatalog(
 
   // 4. Name only (broad fallback)
   const row = db
-    .prepare(
-      "SELECT * FROM card_catalog WHERE LOWER(name) = LOWER(?) LIMIT 1",
-    )
+    .prepare("SELECT * FROM card_catalog WHERE LOWER(name) = LOWER(?) LIMIT 1")
     .get(name) as unknown as CatalogRow | undefined;
 
   return row ?? null;

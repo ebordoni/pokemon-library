@@ -52,7 +52,12 @@ export default function Catalog() {
           stroke="currentColor"
           viewBox="0 0 24 24"
         >
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+          />
         </svg>
         <input
           type="search"
@@ -67,8 +72,18 @@ export default function Catalog() {
             className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 touch-manipulation"
             aria-label="Clear search"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
             </svg>
           </button>
         )}
@@ -79,7 +94,9 @@ export default function Catalog() {
         <div className="flex gap-2 mb-3 flex-wrap">
           {filters.supertype && (
             <button
-              onClick={() => setFilters({ ...filters, supertype: undefined, page: 1 })}
+              onClick={() =>
+                setFilters({ ...filters, supertype: undefined, page: 1 })
+              }
               className="px-3 py-1 bg-pokemon-blue text-white text-xs rounded-full touch-manipulation"
             >
               {filters.supertype} ×
@@ -87,7 +104,9 @@ export default function Catalog() {
           )}
           {filters.type && (
             <button
-              onClick={() => setFilters({ ...filters, type: undefined, page: 1 })}
+              onClick={() =>
+                setFilters({ ...filters, type: undefined, page: 1 })
+              }
               className="px-3 py-1 bg-pokemon-blue text-white text-xs rounded-full touch-manipulation"
             >
               {filters.type} ×
@@ -95,7 +114,9 @@ export default function Catalog() {
           )}
           {filters.duplicates && (
             <button
-              onClick={() => setFilters({ ...filters, duplicates: undefined, page: 1 })}
+              onClick={() =>
+                setFilters({ ...filters, duplicates: undefined, page: 1 })
+              }
               className="px-3 py-1 bg-pokemon-red text-white text-xs rounded-full touch-manipulation"
             >
               Duplicates ×

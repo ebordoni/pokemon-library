@@ -1,7 +1,7 @@
 import { Request, Response, Router } from "express";
 import multer from "multer";
-import { getDb } from "../db/schema";
 import { rowToCard, rowToSession } from "../db/helpers";
+import { getDb } from "../db/schema";
 import { scanQueue } from "../queue/scanQueue";
 import type { CardRow, ScanSessionRow } from "../types";
 
@@ -36,7 +36,9 @@ router.post("/", upload.single("image"), (req: Request, res: Response) => {
     mimeType: req.file.mimetype,
   });
 
-  res.status(202).json({ sessionId, queuePosition, statusUrl: `/api/scan/${sessionId}` });
+  res
+    .status(202)
+    .json({ sessionId, queuePosition, statusUrl: `/api/scan/${sessionId}` });
 });
 
 // GET /api/scan/:id — poll scan status (called repeatedly by frontend)
@@ -83,4 +85,3 @@ router.get("/", (_req: Request, res: Response) => {
 });
 
 export default router;
-

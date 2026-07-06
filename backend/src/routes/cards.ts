@@ -1,7 +1,7 @@
 import { Request, Response, Router } from "express";
 import { z } from "zod";
-import { getDb } from "../db/schema";
 import { rowToCard } from "../db/helpers";
+import { getDb } from "../db/schema";
 import { decrementOrRemoveCard } from "../services/duplicate.service";
 import type { CardRow, PaginatedCards } from "../types";
 
@@ -64,9 +64,7 @@ router.get("/", (req: Request, res: Response) => {
     params.push(duplicates ? 1 : 0);
   }
 
-  const where = conditions.length
-    ? `WHERE ${conditions.join(" AND ")}`
-    : "";
+  const where = conditions.length ? `WHERE ${conditions.join(" AND ")}` : "";
   const offset = (page - 1) * limit;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -80,9 +78,7 @@ router.get("/", (req: Request, res: Response) => {
   ) as { count: number };
 
   const rows = db
-    .prepare(
-      `SELECT * FROM cards ${where} ORDER BY name ASC LIMIT ? OFFSET ?`,
-    )
+    .prepare(`SELECT * FROM cards ${where} ORDER BY name ASC LIMIT ? OFFSET ?`)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     .all(...([...params, limit, offset] as any[])) as unknown as CardRow[];
 

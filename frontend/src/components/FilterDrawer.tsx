@@ -8,14 +8,27 @@ interface Props {
 
 const SUPERTYPES = ["Pokémon", "Trainer", "Energy"] as const;
 const ENERGY_TYPES = [
-  "Fire", "Water", "Grass", "Lightning", "Psychic",
-  "Fighting", "Darkness", "Metal", "Dragon", "Colorless", "Fairy",
+  "Fire",
+  "Water",
+  "Grass",
+  "Lightning",
+  "Psychic",
+  "Fighting",
+  "Darkness",
+  "Metal",
+  "Dragon",
+  "Colorless",
+  "Fairy",
 ];
 
 export default function FilterDrawer({ filters, onFiltersChange }: Props) {
   const [open, setOpen] = useState(false);
 
-  const activeCount = [filters.supertype, filters.type, filters.duplicates].filter(Boolean).length;
+  const activeCount = [
+    filters.supertype,
+    filters.type,
+    filters.duplicates,
+  ].filter(Boolean).length;
 
   function patch(update: Partial<CardFilters>) {
     onFiltersChange({ ...filters, ...update, page: 1 });
@@ -34,8 +47,18 @@ export default function FilterDrawer({ filters, onFiltersChange }: Props) {
         className="relative flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-gray-300 bg-white text-sm text-gray-700 hover:bg-gray-50 active:bg-gray-100 touch-manipulation"
         aria-label="Open filters"
       >
-        <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V19a1 1 0 01-.553.894l-4 2A1 1 0 017 21v-7.586L3.293 6.707A1 1 0 013 6V4z" />
+        <svg
+          className="w-4 h-4 shrink-0"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V19a1 1 0 01-.553.894l-4 2A1 1 0 017 21v-7.586L3.293 6.707A1 1 0 013 6V4z"
+          />
         </svg>
         Filters
         {activeCount > 0 && (
@@ -67,14 +90,26 @@ export default function FilterDrawer({ filters, onFiltersChange }: Props) {
 
         <div className="px-4 pb-4 max-h-[80dvh] overflow-y-auto">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="font-semibold text-lg text-gray-900">Filter Cards</h2>
+            <h2 className="font-semibold text-lg text-gray-900">
+              Filter Cards
+            </h2>
             <button
               onClick={() => setOpen(false)}
               className="p-1.5 rounded-full hover:bg-gray-100 touch-manipulation"
               aria-label="Close"
             >
-              <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              <svg
+                className="w-5 h-5 text-gray-500"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
               </svg>
             </button>
           </div>
@@ -86,7 +121,12 @@ export default function FilterDrawer({ filters, onFiltersChange }: Props) {
               <button
                 key={st}
                 onClick={() =>
-                  patch({ supertype: filters.supertype === st ? undefined : (st as CardFilters["supertype"]) })
+                  patch({
+                    supertype:
+                      filters.supertype === st
+                        ? undefined
+                        : (st as CardFilters["supertype"]),
+                  })
                 }
                 className={`px-3 py-1.5 rounded-full text-sm border transition-colors touch-manipulation ${
                   filters.supertype === st
@@ -105,7 +145,9 @@ export default function FilterDrawer({ filters, onFiltersChange }: Props) {
             {ENERGY_TYPES.map((t) => (
               <button
                 key={t}
-                onClick={() => patch({ type: filters.type === t ? undefined : t })}
+                onClick={() =>
+                  patch({ type: filters.type === t ? undefined : t })
+                }
                 className={`px-3 py-1.5 rounded-full text-sm border transition-colors touch-manipulation ${
                   filters.type === t
                     ? "bg-pokemon-blue text-white border-pokemon-blue"
@@ -119,7 +161,9 @@ export default function FilterDrawer({ filters, onFiltersChange }: Props) {
 
           {/* Duplicates only */}
           <button
-            onClick={() => patch({ duplicates: filters.duplicates ? undefined : true })}
+            onClick={() =>
+              patch({ duplicates: filters.duplicates ? undefined : true })
+            }
             className={`w-full py-2.5 rounded-xl text-sm font-medium border transition-colors touch-manipulation mb-4 ${
               filters.duplicates
                 ? "bg-pokemon-red text-white border-pokemon-red"

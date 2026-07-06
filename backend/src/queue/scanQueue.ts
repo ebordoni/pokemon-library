@@ -1,8 +1,7 @@
+import { getDb } from "../db/schema";
+import { upsertCard } from "../services/duplicate.service";
 import { identifyCardsFromImage } from "../services/grok.service";
 import { mapToCard, searchCard } from "../services/pokemontcg.service";
-import { upsertCard } from "../services/duplicate.service";
-import { getDb } from "../db/schema";
-import type { CardRow } from "../types";
 
 interface QueueItem {
   sessionId: number;

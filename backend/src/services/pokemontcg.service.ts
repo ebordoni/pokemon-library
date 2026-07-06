@@ -5,12 +5,12 @@
  * local card_catalog SQLite table populated by catalog.service.ts.
  * Public interface is unchanged so scan.ts requires no modifications.
  */
+import type { Card } from "../types";
 import {
   catalogRowToCardData,
   searchCatalog,
   type CatalogRow,
 } from "./catalog.service";
-import type { Card } from "../types";
 
 // Re-export as PokemonTCGCard so existing imports in scan.ts continue to work
 export type PokemonTCGCard = CatalogRow;
@@ -35,4 +35,3 @@ export function mapToCard(
 ): Omit<Card, "quantity" | "isDuplicate" | "addedAt" | "updatedAt"> {
   return catalogRowToCardData(apiCard);
 }
-
