@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.2] - 2026-07-06
+
+### Fixed
+
+- White page under HA Ingress: Vite `base: './'` makes asset paths relative to the ingress prefix
+- React Router switched to `HashRouter` so internal navigation works under any ingress path
+
 ## [0.1.1] - 2026-07-06
 
 ### Fixed

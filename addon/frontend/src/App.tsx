@@ -1,4 +1,4 @@
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { HashRouter, Navigate, Route, Routes } from "react-router-dom";
 import Layout from "./components/Layout";
 import CardDetail from "./pages/CardDetail";
 import Catalog from "./pages/Catalog";
@@ -7,7 +7,7 @@ import Upload from "./pages/Upload";
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <HashRouter>
       <Routes>
         <Route element={<Layout />}>
           <Route index element={<Navigate to="/catalog" replace />} />
@@ -17,6 +17,6 @@ export default function App() {
           <Route path="/cards/:id" element={<CardDetail />} />
         </Route>
       </Routes>
-    </BrowserRouter>
+    </HashRouter>
   );
 }
