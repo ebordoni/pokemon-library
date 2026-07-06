@@ -1,0 +1,4 @@
+configuration:
+  grok_api_key:
+    name: "Chiave API Grok"
+    description: "La tua chiave API xAI Grok — usata per identificare le carte dalle foto"

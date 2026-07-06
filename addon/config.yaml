@@ -15,6 +15,6 @@ panel_title: "Pokemon Library"
 options:
   grok_api_key: ""
 schema:
-  grok_api_key: str
+  grok_api_key: password
 map:
   - data:rw
