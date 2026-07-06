@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.7] - 2026-07-06
+
+### Fixed
+
+- API base URL changed to bare relative string `"api"` (no leading slash) so the browser resolves it relative to the document URL — works in both local dev and under any HA Ingress prefix without path-guessing
+- Backend: added middleware to normalise double slashes in the request path (`//api/scan` → `/api/scan`) as a catch-all safety net
+
 ## [0.1.6] - 2026-07-06
 
 ### Fixed

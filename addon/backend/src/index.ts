@@ -16,6 +16,13 @@ const app = express();
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));
 
+// Normalize double slashes in the request path that HA Ingress can produce
+// (e.g. //api/scan → /api/scan) so routes match correctly.
+app.use((req, _res, next) => {
+  req.url = req.url.replace(/\/+/g, "/");
+  next();
+});
+
 // Allow Vite dev server origin in development only
 if (process.env.NODE_ENV !== "production") {
   app.use(cors({ origin: "http://localhost:5173" }));
