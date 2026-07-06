@@ -1,0 +1,29 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./backend/src:/app/src:ro
+      - ./data:/data
+    environment:
+      NODE_ENV: development
+      PORT: "3001"
+      DATA_DIR: /data
+      GROK_API_KEY: ${GROK_API_KEY:-}
+      POKEMONTCG_API_KEY: ${POKEMONTCG_API_KEY:-}
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend/src:/app/src:ro
+    depends_on:
+      - backend
+    restart: unless-stopped

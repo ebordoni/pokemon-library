@@ -1,0 +1,20 @@
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import Layout from "./components/Layout";
+import CardDetail from "./pages/CardDetail";
+import Catalog from "./pages/Catalog";
+import Upload from "./pages/Upload";
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route element={<Layout />}>
+          <Route index element={<Navigate to="/catalog" replace />} />
+          <Route path="/catalog" element={<Catalog />} />
+          <Route path="/upload" element={<Upload />} />
+          <Route path="/cards/:id" element={<CardDetail />} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
+  );
+}

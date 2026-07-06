@@ -1,0 +1,4 @@
+configuration:
+  grok_api_key:
+    name: "Grok API Key"
+    description: "Your xAI Grok API key — used for card identification from photos"
