@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.5] - 2026-07-06
+
+### Fixed
+
+- Root cause of white page: API base URL now resolved from `document.baseURI` (reliable in HA Ingress iframe) instead of `window.location.pathname`
+- Store: `cards` is now always an array (`data.data ?? []`) — prevents undefined crash if the API returns unexpected content
+- `CardGrid`: added optional chaining (`cards?.length`) as additional safety net
+
 ## [0.1.4] - 2026-07-06
 
 ### Fixed

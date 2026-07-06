@@ -35,10 +35,10 @@ export const useCollectionStore = create<CollectionState>((set, get) => ({
       const { data }: { data: PaginatedCards } =
         await api.getCards(activeFilters);
       set({
-        cards: data.data,
-        total: data.total,
-        page: data.page,
-        totalPages: data.totalPages,
+        cards: data.data ?? [],
+        total: data.total ?? 0,
+        page: data.page ?? 1,
+        totalPages: data.totalPages ?? 1,
         filters: activeFilters,
         isLoading: false,
       });
@@ -58,10 +58,10 @@ export const useCollectionStore = create<CollectionState>((set, get) => ({
         page: nextPage,
       });
       set({
-        cards: [...cards, ...data.data],
-        total: data.total,
-        page: data.page,
-        totalPages: data.totalPages,
+        cards: [...cards, ...(data.data ?? [])],
+        total: data.total ?? 0,
+        page: data.page ?? 1,
+        totalPages: data.totalPages ?? 1,
         filters: { ...filters, page: nextPage },
         isLoadingMore: false,
       });

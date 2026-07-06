@@ -20,7 +20,7 @@ export default function CardGrid({ cards, isLoading }: CardGridProps) {
     );
   }
 
-  if (!cards.length) {
+  if (!cards?.length) {
     return (
       <div className="flex flex-col items-center justify-center py-24 text-gray-400 gap-2">
         <svg

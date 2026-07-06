@@ -10,9 +10,10 @@ import type {
 } from "../types";
 
 const apiClient = axios.create({
-  // Build path relative to current location so it works both in local dev
-  // (pathname = "/") and under HA Ingress (pathname = "/api/hassio_ingress/<token>/")
-  baseURL: window.location.pathname.replace(/\/?$/, "/api"),
+  // Resolve "./api" relative to the document's base URI — works both in
+  // local dev (http://localhost:5173/) and under HA Ingress
+  // (http://ha-ip:8123/api/hassio_ingress/<token>/).
+  baseURL: new URL("./api", document.baseURI).pathname,
   timeout: 90_000,
 });
 
