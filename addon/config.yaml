@@ -1,6 +1,6 @@
 name: "Pokemon Library"
 description: "Personal Pokémon TCG collection catalog with AI card identification"
-version: "0.2.3"
+version: "0.2.4"
 slug: "pokemon_library"
 init: false
 arch:
@@ -14,7 +14,7 @@ ingress_entry: /
 panel_icon: "mdi:cards"
 panel_title: "Pokemon Library"
 ports:
-  8099/tcp: null
+  8099/tcp: 8099
 ports_description:
   8099/tcp: "Web interface (accesso diretto, fuori dall'iframe Ingress di HA)"
 options:

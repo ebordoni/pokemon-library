@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.2.4] - 2026-07-07
+
+### Fixed
+
+- **Porta di accesso diretto non configurabile**: la porta `8099/tcp` era mappata a `null`, quindi Home Assistant la considerava "disattivata" e la nascondeva nella card _Rete_ (visibile solo attivando l'interruttore _"Mostra porte disattivate"_). Ora ha un valore predefinito (`8099`), così il campo appare direttamente ed è modificabile, e l'accesso diretto fuori dall'Ingress è abilitato di default
+
 ## [0.2.3] - 2026-07-07
 
 ### Added
