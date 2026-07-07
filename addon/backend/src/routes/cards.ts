@@ -40,7 +40,11 @@ router.get("/", (req: Request, res: Response) => {
   const params: DBParam[] = [];
 
   if (q) {
-    conditions.push("(name LIKE ? OR set_name LIKE ? OR number = ?)");
+    // Number match ignores leading zeros and case so "054" finds "54" and
+    // "tg05" finds "TG05" (LTRIM strips leading '0's from both sides).
+    conditions.push(
+      "(name LIKE ? OR set_name LIKE ? OR LOWER(LTRIM(number, '0')) = LOWER(LTRIM(?, '0')))",
+    );
     params.push(`%${q}%`, `%${q}%`, q);
   }
   if (type) {

@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.1.18] - 2026-07-07
+
+### Fixed
+
+- **Ricerca per numero con zeri iniziali**: cercando "054" nella collezione non veniva trovata la carta "54". Il confronto sul numero ora ignora gli zeri iniziali ed è case-insensitive (`LOWER(LTRIM(number, '0'))`), così "054"→"54" e "tg05"→"TG05" combaciano
+
+### Changed
+
+- **Accesso diretto opzionale (porta 8099)**: ripristinata la sezione `ports` in `config.yaml`. Mappando la porta dalla tab **Network** dell'addon, la UI è raggiungibile direttamente (fuori dall'iframe Ingress di HA), evitando i blocchi di scroll che l'iframe può causare su mobile. Nota: l'accesso diretto è sulla LAN senza autenticazione — abilitare solo su reti fidate
+
 ## [0.1.17] - 2026-07-07
 
 ### Added

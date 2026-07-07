@@ -249,7 +249,7 @@ Il repository dovrà essere aggiunto come **repository di addon personalizzato**
 ```yaml
 name: "Pokemon Library"
 description: "Personal Pokémon TCG collection catalog with AI card identification"
-version: "0.1.15"
+version: "0.1.18"
 slug: "pokemon_library"
 init: false
 arch:
@@ -262,6 +262,10 @@ ingress_port: 8099
 ingress_entry: /
 panel_icon: "mdi:cards"
 panel_title: "Pokemon Library"
+ports:
+  8099/tcp: null # accesso diretto opzionale (configurabile dalla tab Network)
+ports_description:
+  8099/tcp: "Web interface (accesso diretto, fuori dall'iframe Ingress di HA)"
 options:
   grok_api_key: ""
 schema:
@@ -269,7 +273,8 @@ schema:
 map:
   - data:rw
 
-# Nota: nessuna sezione `ports` — l'addon è raggiungibile solo via Ingress HA.
+# Nota: la porta 8099 è esposta come opzione (default non mappata). Serve per
+# accedere alla UI fuori dall'iframe Ingress (scroll più fluido su mobile).
 # Nessuna pokemontcg_api_key: il catalogo è locale (dataset GitHub).
 ```
 
@@ -308,7 +313,7 @@ map:
 - Tutte le chiamate alle API esterne avvengono **solo nel backend**.
 - I file immagine caricati dall'utente vengono processati **in memoria** e mai scritti su disco.
 - Validazione input con **Zod** su tutti gli endpoint.
-- Il backend accetta connessioni **solo da localhost/Ingress HA** (non esposto direttamente su rete).
+- Accesso primario via **Ingress HA**. La porta 8099 può essere esposta opzionalmente (tab Network) per un accesso diretto più fluido su mobile: in tal caso l'interfaccia è raggiungibile sulla LAN **senza autenticazione**, quindi va abilitata solo su reti fidate.
 
 ---
 
