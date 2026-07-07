@@ -114,7 +114,10 @@ export default function Catalog() {
       </div>
 
       {/* Active filter chips */}
-      {(filters.type || filters.supertype || filters.duplicates) && (
+      {(filters.type ||
+        filters.supertype ||
+        filters.rarity ||
+        filters.duplicates) && (
         <div className="flex gap-2 mb-3 flex-wrap">
           {filters.supertype && (
             <button
@@ -130,6 +133,14 @@ export default function Catalog() {
               className="px-3 py-1 bg-pokemon-blue text-white text-xs rounded-full touch-manipulation"
             >
               {filters.type} ×
+            </button>
+          )}
+          {filters.rarity && (
+            <button
+              onClick={() => setFilters({ ...filters, rarity: undefined })}
+              className="px-3 py-1 bg-pokemon-blue text-white text-xs rounded-full touch-manipulation"
+            >
+              {filters.rarity} ×
             </button>
           )}
           {filters.duplicates && (

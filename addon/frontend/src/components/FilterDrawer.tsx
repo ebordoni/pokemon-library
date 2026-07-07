@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { api } from "../api/client";
 import type { CardFilters } from "../types";
 
 interface Props {
@@ -23,10 +24,29 @@ const ENERGY_TYPES = [
 
 export default function FilterDrawer({ filters, onFiltersChange }: Props) {
   const [open, setOpen] = useState(false);
+  const [rarities, setRarities] = useState<string[]>([]);
+
+  // Populate the rarity options from the rarities actually present in the
+  // collection (stats.byRarity is already sorted by count desc).
+  useEffect(() => {
+    let cancelled = false;
+    api
+      .getStats()
+      .then(({ data }) => {
+        if (!cancelled) setRarities(Object.keys(data.byRarity ?? {}));
+      })
+      .catch(() => {
+        /* non-blocking: rarity filter stays hidden if stats fail */
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const activeCount = [
     filters.supertype,
     filters.type,
+    filters.rarity,
     filters.duplicates,
   ].filter(Boolean).length;
 
@@ -162,6 +182,32 @@ export default function FilterDrawer({ filters, onFiltersChange }: Props) {
               </button>
             ))}
           </div>
+
+          {/* Rarity */}
+          {rarities.length > 0 && (
+            <>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-300 mb-2">
+                Rarità
+              </p>
+              <div className="flex gap-2 flex-wrap mb-4">
+                {rarities.map((r) => (
+                  <button
+                    key={r}
+                    onClick={() =>
+                      patch({ rarity: filters.rarity === r ? undefined : r })
+                    }
+                    className={`px-3 py-1.5 rounded-full text-sm border transition-colors touch-manipulation ${
+                      filters.rarity === r
+                        ? "bg-pokemon-blue text-white border-pokemon-blue"
+                        : "border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700"
+                    }`}
+                  >
+                    {r}
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
 
           {/* Duplicates only */}
           <button

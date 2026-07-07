@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.2.3] - 2026-07-07
+
+### Added
+
+- **Filtro per rarità nella libreria**: il pannello filtri della collezione ora include una sezione _Rarità_ popolata dinamicamente dalle rarità effettivamente presenti in collezione (via `/api/stats`). Il filtro selezionato viene mostrato tra i chip dei filtri attivi nel catalogo ed è combinabile con categoria, tipo energia e "solo duplicati"
+
 ## [0.2.2] - 2026-07-07
 
 ### Fixed
