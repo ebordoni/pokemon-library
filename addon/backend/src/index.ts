@@ -8,7 +8,11 @@ import cardsRouter from "./routes/cards";
 import catalogRouter from "./routes/catalog";
 import scanRouter from "./routes/scan";
 import statsRouter from "./routes/stats";
-import { getCatalogStatus, seedCatalog } from "./services/catalog.service";
+import {
+  backfillPtcgoCodes,
+  getCatalogStatus,
+  seedCatalog,
+} from "./services/catalog.service";
 
 // Resolve the app version from package.json (copied next to dist/ in the
 // production image and present in dev), avoiding a hard-coded value.

@@ -1,6 +1,6 @@
 {
       "name": "pokemon-library-backend",
-      "version": "0.2.6",
+      "version": "0.2.7",
       "private": true,
       "scripts": {
             "dev": "tsx watch src/index.ts",

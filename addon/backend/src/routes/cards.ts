@@ -2,7 +2,14 @@ import { Request, Response, Router } from "express";
 import { z } from "zod";
 import { rowToCard } from "../db/helpers";
 import { getDb } from "../db/schema";
-import { decrementOrRemoveCard } from "../services/duplicate.service";
+import {
+  catalogRowToCardData,
+  findBySetCodeAndNumber,
+} from "../services/catalog.service";
+import {
+  decrementOrRemoveCard,
+  upsertCard,
+} from "../services/duplicate.service";
 import type { CardRow, PaginatedCards } from "../types";
 
 const router = Router();

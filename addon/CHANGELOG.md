@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.2.7] - 2026-07-07
+
+### Fixed
+
+- **Build Docker fallita (0.2.5/0.2.6)**: mancavano gli import di alcune funzioni del catalogo, causando errori `TS2304` durante `tsc`. Aggiunti gli import mancanti in `index.ts` (`backfillPtcgoCodes`), `routes/cards.ts` (`findBySetCodeAndNumber`, `catalogRowToCardData`, `upsertCard`) e `routes/catalog.ts` (`clearCatalog`)
+
 ## [0.2.6] - 2026-07-07
 
 ### Added

@@ -2,6 +2,7 @@ import { Request, Response, Router } from "express";
 import { getDb } from "../db/schema";
 import {
   catalogRowToCardData,
+  clearCatalog,
   findBySetCodeAndNumber,
   getCatalogStatus,
   seedCatalog,
