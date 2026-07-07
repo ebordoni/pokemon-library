@@ -49,13 +49,13 @@ export const api = {
   },
 
   getScanStatus: (sessionId: number) =>
-   ** Apply per-candidate review decisions for a scan session */
+    apiClient.get<ScanStatusResponse>(`/scan/${sessionId}`),
+
+  /** Apply per-candidate review decisions for a scan session */
   confirmScan: (sessionId: number, decisions: ScanDecision[]) =>
     apiClient.post<ScanConfirmResponse>(`/scan/${sessionId}/confirm`, {
       decisions,
     }),
-
-  / apiClient.get<ScanStatusResponse>(`/scan/${sessionId}`),
 
   // ── Stats ──────────────────────────────────────────────────────────────
   getStats: () => apiClient.get<CollectionStats>("/stats"),

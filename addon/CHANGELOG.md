@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.2.2] - 2026-07-07
+
+### Fixed
+
+- **Build frontend fallita (v0.2.1)**: corretto `api/client.ts`, dove il metodo `getScanStatus` e il nuovo `confirmScan` erano stati mescolati generando errori di sintassi (`TS1005`/`TS1109`/`TS1160`) durante `tsc && vite build`
+
 ## [0.2.1] - 2026-07-07
 
 ### Fixed
