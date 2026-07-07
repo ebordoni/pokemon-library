@@ -64,4 +64,15 @@ export const api = {
   getCatalogStatus: () => apiClient.get<CatalogStatus>("/catalog"),
 
   triggerCatalogUpdate: () => apiClient.post("/catalog/update"),
+
+  // ── Manual entry ───────────────────────────────────────────────────────
+  /** Preview a catalog card by printed set code + number (no write) */
+  lookupManualCard: (set: string, number: string) =>
+    apiClient.get<ManualLookupResponse>("/catalog/lookup", {
+      params: { set, number },
+    }),
+
+  /** Add a card to the collection by printed set code + number */
+  addManualCard: (set: string, number: string) =>
+    apiClient.post<ManualAddResponse>("/cards/manual", { set, number }),
 };

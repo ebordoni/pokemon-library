@@ -86,6 +86,19 @@ export interface ScanConfirmResponse {
   cards: Card[];
 }
 
+/** Response from GET /api/catalog/lookup (manual entry preview) */
+export interface ManualLookupResponse {
+  card: CardData;
+  alreadyInCollection: boolean;
+  currentQuantity: number;
+}
+
+/** Response from POST /api/cards/manual (manual entry commit) */
+export interface ManualAddResponse {
+  card: Card;
+  wasDuplicate: boolean;
+}
+
 export interface CatalogStatus {
   cardCount: number;
   setCount: number;

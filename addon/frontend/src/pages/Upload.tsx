@@ -205,6 +205,18 @@ export default function Upload() {
           <p className="text-center text-xs text-gray-400 dark:text-gray-500 mt-4">
             Le carte vengono identificate da Grok Vision AI
           </p>
+
+          {/* Separatore */}
+          <div className="flex items-center gap-3 my-6">
+            <div className="flex-1 h-px bg-gray-200 dark:bg-gray-700" />
+            <span className="text-xs text-gray-400 dark:text-gray-500">
+              oppure
+            </span>
+            <div className="flex-1 h-px bg-gray-200 dark:bg-gray-700" />
+          </div>
+
+          {/* Inserimento manuale (senza scansione) */}
+          <ManualEntry />
         </>
       )}
 

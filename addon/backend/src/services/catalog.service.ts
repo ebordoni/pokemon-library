@@ -10,6 +10,7 @@ const RAW_BASE =
 interface SetMeta {
   id: string;
   name: string;
+  ptcgoCode?: string;
 }
 
 interface RawCard {
@@ -42,6 +43,7 @@ export interface CatalogRow {
   weaknesses: string; // JSON
   set_id: string;
   set_name: string;
+  ptcgo_code: string | null;
   number: string;
   rarity: string | null;
   image_small: string | null;
@@ -112,11 +114,11 @@ export async function seedCatalog(): Promise<void> {
     const insertCard = db.prepare(`
       INSERT OR REPLACE INTO card_catalog (
         id, name, supertype, subtypes, hp, types, evolves_from,
-        attacks, weaknesses, set_id, set_name, number, rarity,
+        attacks, weaknesses, set_id, set_name, ptcgo_code, number, rarity,
         image_small, image_large
       ) VALUES (
         @id, @name, @supertype, @subtypes, @hp, @types, @evolvesFrom,
-        @attacks, @weaknesses, @setId, @setName, @number, @rarity,
+        @attacks, @weaknesses, @setId, @setName, @ptcgoCode, @number, @rarity,
         @imageSmall, @imageLarge
       )
     `);
@@ -188,6 +190,7 @@ export async function seedCatalog(): Promise<void> {
             weaknesses: JSON.stringify(card.weaknesses ?? []),
             setId,
             setName,
+            ptcgoCode: set.ptcgoCode ?? null,
             number: card.number,
             rarity: card.rarity ?? null,
             imageSmall:
@@ -322,4 +325,97 @@ export function catalogRowToCardData(
     imageUrl: row.image_small !== null ? row.image_small : undefined,
     imageUrlHires: row.image_large !== null ? row.image_large : undefined,
   };
+}
+
+/**
+ * Finds a card in the local catalog by the set code printed on the card and
+ * its collector number — e.g. code "TWM", number "126/167".
+ *
+ * The printed code is the set's `ptcgoCode` ("TWM"), which differs from the
+ * dataset `set_id` ("sv6"). To be forgiving we try, in order:
+ *   1. ptcgo_code == code           (the printed code — preferred)
+ *   2. set_id     == code           (dataset id, e.g. "sv6")
+ *   3. set_name LIKE %code%         (partial name, e.g. "Twilight")
+ * always combined with a canonical number match (so "126", "0126" and
+ * "126/167" are equivalent). Returns null when nothing matches.
+ */
+export function findBySetCodeAndNumber(
+  code: string,
+  number: string,
+): CatalogRow | null {
+  const db = getDb();
+  const normQ = normalizeNumber(number);
+  const codeLc = code.trim().toLowerCase();
+  if (!codeLc || !normQ) return null;
+
+  // Narrow to plausible rows in SQL, then match the number canonically in JS.
+  const rows = db
+    .prepare(
+      `SELECT * FROM card_catalog
+       WHERE LOWER(ptcgo_code) = ?
+          OR LOWER(set_id) = ?
+          OR LOWER(set_name) LIKE ?`,
+    )
+    .all(codeLc, codeLc, `%${codeLc}%`) as unknown as CatalogRow[];
+  if (!rows.length) return null;
+
+  const numberMatches = (r: CatalogRow): boolean =>
+    normalizeNumber(r.number) === normQ;
+
+  // Prefer the strongest set signal first.
+  return (
+    rows.find(
+      (r) => r.ptcgo_code?.toLowerCase() === codeLc && numberMatches(r),
+    ) ??
+    rows.find((r) => r.set_id.toLowerCase() === codeLc && numberMatches(r)) ??
+    rows.find(numberMatches) ??
+    null
+  );
+}
+
+/**
+ * One-shot backfill of ptcgo_code for catalogs seeded before the column
+ * existed. Fetches only the small sets index (one request) and updates every
+ * card_catalog row grouped by set_id. Safe to call repeatedly — it exits
+ * early when no rows are missing the code.
+ */
+export async function backfillPtcgoCodes(): Promise<void> {
+  const db = getDb();
+
+  const missing = db
+    .prepare("SELECT COUNT(*) AS n FROM card_catalog WHERE ptcgo_code IS NULL")
+    .get() as { n: number };
+  if (missing.n === 0) return;
+
+  console.log(
+    `[catalog] Backfilling ptcgo_code for ${missing.n} cards (fetching sets index)…`,
+  );
+
+  try {
+    const setsRes = await axios.get<SetMeta[]>(`${RAW_BASE}/sets/en.json`, {
+      timeout: 30_000,
+    });
+
+    const update = db.prepare(
+      "UPDATE card_catalog SET ptcgo_code = ? WHERE set_id = ? AND ptcgo_code IS NULL",
+    );
+
+    db.exec("BEGIN");
+    try {
+      for (const set of setsRes.data) {
+        if (set.ptcgoCode) update.run(set.ptcgoCode, set.id);
+      }
+      db.exec("COMMIT");
+    } catch (txErr) {
+      db.exec("ROLLBACK");
+      throw txErr;
+    }
+
+    console.log("[catalog] ptcgo_code backfill complete.");
+  } catch (err) {
+    console.warn(
+      "[catalog] ptcgo_code backfill failed (will retry on next start):",
+      err instanceof Error ? err.message : err,
+    );
+  }
 }

@@ -60,6 +60,7 @@ const SCHEMA_V1 = `
     weaknesses      TEXT    NOT NULL DEFAULT '[]',
     set_id          TEXT    NOT NULL,
     set_name        TEXT    NOT NULL,
+    ptcgo_code      TEXT,
     number          TEXT    NOT NULL,
     rarity          TEXT,
     image_small     TEXT,
@@ -67,9 +68,10 @@ const SCHEMA_V1 = `
     imported_at     DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
   );
 
-  CREATE INDEX IF NOT EXISTS idx_catalog_name   ON card_catalog(name);
-  CREATE INDEX IF NOT EXISTS idx_catalog_set_id ON card_catalog(set_id);
-  CREATE INDEX IF NOT EXISTS idx_catalog_number ON card_catalog(number);
+  CREATE INDEX IF NOT EXISTS idx_catalog_name       ON card_catalog(name);
+  CREATE INDEX IF NOT EXISTS idx_catalog_set_id     ON card_catalog(set_id);
+  CREATE INDEX IF NOT EXISTS idx_catalog_ptcgo_code ON card_catalog(ptcgo_code);
+  CREATE INDEX IF NOT EXISTS idx_catalog_number     ON card_catalog(number);
 
   INSERT OR IGNORE INTO schema_version (version) VALUES (1);
 `;
@@ -105,6 +107,18 @@ function runMigrations(): void {
       "ALTER TABLE scan_sessions ADD COLUMN candidates TEXT NOT NULL DEFAULT '[]'",
     );
     console.log("[db] Migrated: added scan_sessions.candidates");
+  }
+
+  const catalogCols = db
+    .prepare("PRAGMA table_info(card_catalog)")
+    .all() as Array<{ name: string }>;
+
+  if (!catalogCols.some((c) => c.name === "ptcgo_code")) {
+    db.exec("ALTER TABLE card_catalog ADD COLUMN ptcgo_code TEXT");
+    db.exec(
+      "CREATE INDEX IF NOT EXISTS idx_catalog_ptcgo_code ON card_catalog(ptcgo_code)",
+    );
+    console.log("[db] Migrated: added card_catalog.ptcgo_code");
   }
 }
 

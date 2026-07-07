@@ -103,6 +103,10 @@ if (catalogStatus.cardCount === 0) {
     "[server] Card catalog is empty — starting background seeding from GitHub dataset…",
   );
   void seedCatalog();
+} else {
+  // Existing catalog seeded before ptcgo_code existed — backfill the printed
+  // set codes (one lightweight request) so manual entry by code works.
+  void backfillPtcgoCodes();
 }
 
 app.listen(config.port, () => {

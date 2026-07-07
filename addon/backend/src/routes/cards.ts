@@ -24,6 +24,11 @@ const QuantitySchema = z.object({
   quantity: z.number().int().min(1),
 });
 
+const ManualSchema = z.object({
+  set: z.string().trim().min(1),
+  number: z.string().trim().min(1),
+});
+
 // GET /api/cards
 router.get("/", (req: Request, res: Response) => {
   const parse = FiltersSchema.safeParse(req.query);
@@ -98,6 +103,38 @@ router.get("/", (req: Request, res: Response) => {
   };
 
   res.json(result);
+});
+
+// POST /api/cards/manual — add a card by its printed set code + number,
+// resolved directly against the local catalog (no AI / no network).
+router.post("/manual", (req: Request, res: Response) => {
+  const parse = ManualSchema.safeParse(req.body);
+  if (!parse.success) {
+    res.status(400).json({ error: "Set e numero sono obbligatori" });
+    return;
+  }
+
+  const { set, number } = parse.data;
+  const row = findBySetCodeAndNumber(set, number);
+  if (!row) {
+    res.status(404).json({
+      error: `Nessuna carta trovata per "${set} ${number}" nel catalogo locale`,
+    });
+    return;
+  }
+
+  const cardData = catalogRowToCardData(row);
+  const wasDuplicate = upsertCard(cardData);
+
+  const db = getDb();
+  const saved = db
+    .prepare("SELECT * FROM cards WHERE id = ?")
+    .get(cardData.id) as unknown as CardRow;
+
+  res.status(wasDuplicate ? 200 : 201).json({
+    card: rowToCard(saved),
+    wasDuplicate,
+  });
 });
 
 // GET /api/cards/:id

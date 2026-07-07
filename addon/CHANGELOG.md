@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.2.5] - 2026-07-07
+
+### Added
+
+- **Inserimento manuale di una carta (senza scansione)**: nella pagina _Aggiungi Carte_ è ora disponibile un form "Inserimento manuale" dove digitare il codice del set stampato sulla carta e il numero (es. `TWM` + `126/167`). La carta viene cercata direttamente nel catalogo locale (nessuna AI, nessuna chiamata di rete), mostrata in anteprima con avviso "già in collezione ×N", e aggiunta con un clic (con gestione doppioni)
+- **Endpoint `GET /api/catalog/lookup?set=&number=`**: anteprima di una carta del catalogo per codice set + numero
+- **Endpoint `POST /api/cards/manual`**: aggiunge alla collezione una carta risolta per codice set + numero
+
+### Changed
+
+- **Catalogo**: memorizzato il codice stampato del set (`ptcgoCode`, es. `TWM`) nella tabella `card_catalog` (nuova colonna `ptcgo_code` con migrazione automatica). Per i cataloghi già esistenti il codice viene ripopolato all'avvio con una singola richiesta leggera dell'indice dei set — senza re-seed completo
+
 ## [0.2.4] - 2026-07-07
 
 ### Fixed
