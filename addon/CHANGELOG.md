@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.1.16] - 2026-07-07
+
+### Changed
+
+- **Aggiornamento `multer` 1.4.5-lts → 2.0.1**: la 1.x era deprecata e con vulnerabilità note. L'API usata (`memoryStorage`, `single`, `fileFilter`) è invariata. `package-lock.json` rigenerato di conseguenza
+
 ## [0.1.15] - 2026-07-07
 
 ### Fixed

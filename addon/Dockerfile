@@ -26,7 +26,7 @@ LABEL \
   io.hass.description="Personal Pokémon TCG collection catalog with AI identification" \
   io.hass.arch="aarch64|amd64" \
   io.hass.type="addon" \
-  io.hass.version="0.1.15"
+  io.hass.version="0.1.16"
 
 WORKDIR /app
 
