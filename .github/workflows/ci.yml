@@ -40,3 +40,28 @@ jobs:
 
       - name: Build (tsc)
         run: npm run build
+
+  db-smoke:
+    name: DB migration smoke test
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: addon/backend
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: addon/backend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run migration smoke test
+        run: npm run smoke
