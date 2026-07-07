@@ -8,6 +8,7 @@ type Stage = "idle" | "uploading" | "polling" | "done" | "error";
 
 export default function Upload() {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const galleryInputRef = useRef<HTMLInputElement>(null);
   const [stage, setStage] = useState<Stage>("idle");
   const [sessionId, setSessionId] = useState<number | null>(null);
   const [queuePos, setQueuePos] = useState<number>(0);
@@ -63,6 +64,7 @@ export default function Upload() {
     setIsDragging(false);
     setFinalResult(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
+    if (galleryInputRef.current) galleryInputRef.current.value = "";
   }
 
   function onDragOver(e: React.DragEvent) {
@@ -95,7 +97,7 @@ export default function Upload() {
       {/* ── IDLE ─────────────────────────────────────────────────────── */}
       {stage === "idle" && (
         <>
-          {/* Hidden file input — opens camera on mobile, file picker on desktop */}
+          {/* Input fotocamera (capture="environment") */}
           <input
             ref={fileInputRef}
             type="file"
@@ -107,60 +109,67 @@ export default function Upload() {
               if (file) void handleFile(file);
             }}
           />
+          {/* Input libreria foto (senza capture) */}
+          <input
+            ref={galleryInputRef}
+            type="file"
+            accept="image/*"
+            className="sr-only"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) void handleFile(file);
+            }}
+          />
 
-          {/* Drop zone / camera button */}
+          {/* Area drag-and-drop */}
           <div
             onDragOver={onDragOver}
             onDragLeave={onDragLeave}
             onDrop={onDrop}
-            className={`w-full py-14 flex flex-col items-center justify-center gap-4 bg-white rounded-2xl border-2 border-dashed transition-colors cursor-pointer touch-manipulation active:scale-[0.98] ${
+            className={`w-full py-10 flex flex-col items-center justify-center gap-3 bg-white rounded-2xl border-2 border-dashed transition-colors ${
               isDragging
                 ? "border-pokemon-blue bg-blue-50 scale-[0.99]"
-                : "border-gray-300 hover:border-pokemon-blue hover:bg-blue-50"
+                : "border-gray-200"
             }`}
-            onClick={() => fileInputRef.current?.click()}
           >
-            <div
-              className={`w-20 h-20 rounded-full flex items-center justify-center transition-colors ${
-                isDragging ? "bg-blue-600" : "bg-pokemon-blue"
-              }`}
+            {isDragging ? (
+              <p className="font-semibold text-pokemon-blue px-4 text-center">
+                Rilascia la foto qui
+              </p>
+            ) : (
+              <p className="text-sm text-gray-400 px-4 text-center">
+                Trascina un'immagine qui, oppure usa i pulsanti sotto
+              </p>
+            )}
+          </div>
+
+          {/* Pulsanti azione */}
+          <div className="flex gap-3 mt-4">
+            {/* Fotocamera */}
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              className="flex-1 flex flex-col items-center gap-2 py-5 bg-pokemon-blue text-white rounded-2xl touch-manipulation active:scale-[0.97] transition-transform"
             >
-              <svg
-                className="w-10 h-10 text-white"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={1.5}
-                  d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
-                />
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={1.5}
-                  d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"
-                />
+              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+                  d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+                  d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
-            </div>
-            <div className="text-center px-4">
-              {isDragging ? (
-                <p className="font-semibold text-pokemon-blue">
-                  Rilascia la foto qui
-                </p>
-              ) : (
-                <>
-                  <p className="font-semibold text-gray-800">
-                    Scatta una foto o trascina un'immagine
-                  </p>
-                  <p className="text-sm text-gray-500 mt-1">
-                    Disponi fino a 4 carte faccia in su, con buona luce
-                  </p>
-                </>
-              )}
-            </div>
+              <span className="text-sm font-semibold">Fotocamera</span>
+            </button>
+
+            {/* Libreria foto */}
+            <button
+              onClick={() => galleryInputRef.current?.click()}
+              className="flex-1 flex flex-col items-center gap-2 py-5 bg-white border-2 border-gray-200 text-gray-700 rounded-2xl touch-manipulation active:scale-[0.97] transition-transform"
+            >
+              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+                  d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              <span className="text-sm font-semibold">Libreria foto</span>
+            </button>
           </div>
 
           <p className="text-center text-xs text-gray-400 mt-4">

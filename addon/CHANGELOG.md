@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.1.12] - 2026-07-07
+
+### Added
+
+- Pagina "Aggiungi Carte": due pulsanti separati — **Fotocamera** (apre direttamente la camera) e **Libreria foto** (apre il selettore file/galleria del telefono). L'area drag-and-drop su desktop rimane funzionante
+
 ## [0.1.11] - 2026-07-07
 
 ### Fixed
