@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.2.1] - 2026-07-07
+
+### Fixed
+
+- **Build fallita (v0.2.0)**: ripristinati due import rimossi accidentalmente da un organize-imports in `routes/scan.ts` (`z` da `zod` e `upsertCard`), che facevano fallire `tsc` in fase di build Docker (`TS2304`)
+
 ## [0.2.0] - 2026-07-07
 
 ### Added
