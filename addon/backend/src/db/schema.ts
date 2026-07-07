@@ -86,8 +86,26 @@ export function initDb(): void {
   db.exec("PRAGMA synchronous = NORMAL");
 
   db.exec(SCHEMA_V1);
+  runMigrations();
 
   console.log(`[db] Database ready at ${dbPath}`);
+}
+
+/**
+ * Idempotent schema migrations for databases created by older versions.
+ * Uses ADD COLUMN guarded by PRAGMA table_info so it is safe to re-run.
+ */
+function runMigrations(): void {
+  const cols = db.prepare("PRAGMA table_info(scan_sessions)").all() as Array<{
+    name: string;
+  }>;
+
+  if (!cols.some((c) => c.name === "candidates")) {
+    db.exec(
+      "ALTER TABLE scan_sessions ADD COLUMN candidates TEXT NOT NULL DEFAULT '[]'",
+    );
+    console.log("[db] Migrated: added scan_sessions.candidates");
+  }
 }
 
 export function getDb(): DatabaseSync {

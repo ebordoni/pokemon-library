@@ -31,6 +31,7 @@ export function rowToSession(row: ScanSessionRow): ScanSession {
     createdAt: row.created_at,
     cardCount: row.card_count,
     identifiedCards: JSON.parse(row.identified_cards) as string[],
+    candidates: JSON.parse(row.candidates ?? "[]") as ScanSession["candidates"],
     status: row.status as ScanSession["status"],
     errorMessage: row.error_message !== null ? row.error_message : undefined,
   };

@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.2.0] - 2026-07-07
+
+### Added
+
+- **Revisione dei risultati di scansione**: dopo l'identificazione AI, l'app mostra una schermata di revisione dove confermare o rifiutare ogni carta singolarmente prima di salvarla. Per le carte già presenti in collezione viene mostrato un avviso _"Già in collezione ×N"_ con la scelta tra _+1 doppione_ o _Scarta_ (default: scarta, per evitare doppioni accidentali). Le letture non risolte a catalogo sono elencate come informative (non aggiungibili). Al termine viene mostrato un riepilogo (nuove / doppioni / scartate)
+- **Endpoint `POST /api/scan/:id/confirm`**: applica le decisioni per candidato (`add`/`skip`) e committa in collezione solo le carte confermate
+
+### Changed
+
+- **Le carte scansionate non vengono più salvate automaticamente**: la coda di scansione ora produce dei _candidati_ (con match a catalogo, stato "già in collezione" e quantità attuale) e li salva sulla sessione; l'inserimento in collezione avviene solo dopo la conferma dell'utente
+- **Schema DB**: aggiunta colonna `scan_sessions.candidates` (JSON) con migrazione automatica `ALTER TABLE` per i database esistenti; nuovo stato sessione `applied`
+
 ## [0.1.18] - 2026-07-07
 
 ### Fixed

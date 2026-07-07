@@ -35,8 +35,19 @@ export interface Card {
   updatedAt: string;
 }
 
-export interface ScanResultCard extends Card {
-  isNew: boolean;
+export type CardData = Omit<
+  Card,
+  "quantity" | "isDuplicate" | "addedAt" | "updatedAt"
+>;
+
+/** A single card proposed by a scan, awaiting the user's review decision. */
+export interface ScanCandidate {
+  index: number;
+  matched: boolean;
+  raw: { name: string; set: string; number: string; hp?: number };
+  card?: CardData;
+  alreadyInCollection: boolean;
+  currentQuantity: number;
 }
 
 export interface ScanSession {
@@ -44,13 +55,14 @@ export interface ScanSession {
   createdAt: string;
   cardCount: number;
   identifiedCards: string[];
-  status: "pending" | "processing" | "completed" | "error";
+  candidates: ScanCandidate[];
+  status: "pending" | "processing" | "completed" | "applied" | "error";
   errorMessage?: string;
 }
 
-export interface ScanResponse {
-  session: ScanSession;
-  cards: ScanResultCard[];
+export interface ScanDecision {
+  index: number;
+  action: "add" | "skip";
 }
 
 /** Response from POST /api/scan (enqueue) */
@@ -63,8 +75,15 @@ export interface ScanEnqueueResponse {
 /** Response from GET /api/scan/:id (poll) */
 export interface ScanStatusResponse {
   session: ScanSession;
-  cards: Card[];
   queuePosition: number;
+}
+
+/** Response from POST /api/scan/:id/confirm */
+export interface ScanConfirmResponse {
+  addedCount: number;
+  duplicateCount: number;
+  skippedCount: number;
+  cards: Card[];
 }
 
 export interface CatalogStatus {

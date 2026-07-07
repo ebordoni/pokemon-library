@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { api } from "../api/client";
 import CameraCapture from "../components/CameraCapture";
-import CardTile from "../components/CardTile";
+import ScanReview from "../components/ScanReview";
 import ThemeToggle from "../components/ThemeToggle";
 import { useScanStatus } from "../hooks/useScanStatus";
 import type { ScanStatusResponse } from "../types";
 
-type Stage = "idle" | "uploading" | "polling" | "done" | "error";
+type Stage = "idle" | "uploading" | "polling" | "review" | "error";
 
 export default function Upload() {
   const galleryInputRef = useRef<HTMLInputElement>(null);
@@ -28,7 +28,7 @@ export default function Upload() {
     const s = scanStatus.session.status;
     if (s === "completed") {
       setFinalResult(scanStatus);
-      setStage("done");
+      setStage("review");
     }
     if (s === "error") {
       setErrorMsg(scanStatus.session.errorMessage ?? "Scansione fallita");
@@ -231,45 +231,13 @@ export default function Upload() {
         </div>
       )}
 
-      {/* ── DONE ─────────────────────────────────────────────────────── */}
-      {stage === "done" && finalResult && (
-        <div>
-          <div className="flex items-center justify-between mb-4">
-            <p className="font-semibold text-gray-900 dark:text-gray-100">
-              {finalResult.cards.length === 0
-                ? "Nessuna carta riconosciuta"
-                : finalResult.cards.length === 1
-                  ? "Trovata 1 carta"
-                  : `Trovate ${finalResult.cards.length} carte`}
-            </p>
-            <button
-              onClick={reset}
-              className="text-sm text-pokemon-blue font-medium touch-manipulation"
-            >
-              Scansiona altre
-            </button>
-          </div>
-
-          {finalResult.cards.length > 0 ? (
-            <div className="grid grid-cols-2 gap-3">
-              {finalResult.cards.map((card) => (
-                <CardTile key={card.id} card={card} />
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-12 text-gray-400 dark:text-gray-500">
-              <p className="text-sm">
-                Riprova con più luce o avvicinati alle carte
-              </p>
-              <button
-                onClick={reset}
-                className="mt-4 px-6 py-2.5 bg-pokemon-blue text-white rounded-xl text-sm font-medium touch-manipulation"
-              >
-                Riprova
-              </button>
-            </div>
-          )}
-        </div>
+      {/* ── REVIEW ───────────────────────────────────────────────────── */}
+      {stage === "review" && finalResult && sessionId !== null && (
+        <ScanReview
+          sessionId={sessionId}
+          candidates={finalResult.session.candidates}
+          onRestart={reset}
+        />
       )}
 
       {/* ── ERROR ────────────────────────────────────────────────────── */}

@@ -58,22 +58,39 @@ export interface CardRow {
   updated_at: string;
 }
 
+/** Card fields as resolved from the catalog, before it enters the collection. */
+export type CardData = Omit<
+  Card,
+  "quantity" | "isDuplicate" | "addedAt" | "updatedAt"
+>;
+
+/**
+ * A single card proposed by a scan, awaiting the user's review decision.
+ * `matched` is false when the AI reading could not be resolved in the catalog.
+ */
+export interface ScanCandidate {
+  index: number;
+  matched: boolean;
+  raw: { name: string; set: string; number: string; hp?: number };
+  card?: CardData;
+  alreadyInCollection: boolean;
+  currentQuantity: number;
+}
+
 export interface ScanSession {
   id: number;
   createdAt: string;
   cardCount: number;
   identifiedCards: string[];
-  status: "pending" | "processing" | "completed" | "error";
+  candidates: ScanCandidate[];
+  status: "pending" | "processing" | "completed" | "applied" | "error";
   errorMessage?: string;
 }
 
-export interface ScanResultCard extends Card {
-  isNew: boolean;
-}
-
-export interface ScanResponse {
-  session: ScanSession;
-  cards: ScanResultCard[];
+/** A per-candidate decision sent to POST /api/scan/:id/confirm */
+export interface ScanDecision {
+  index: number;
+  action: "add" | "skip";
 }
 
 export interface CardFilters {
@@ -112,6 +129,7 @@ export interface ScanSessionRow {
   created_at: string;
   card_count: number;
   identified_cards: string; // JSON
+  candidates: string; // JSON
   status: string;
   error_message: string | null;
 }

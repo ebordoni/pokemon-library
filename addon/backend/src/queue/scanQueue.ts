@@ -1,7 +1,7 @@
 import { getDb } from "../db/schema";
-import { upsertCard } from "../services/duplicate.service";
 import { identifyCardsFromImage } from "../services/grok.service";
 import { mapToCard, searchCard } from "../services/pokemontcg.service";
+import type { ScanCandidate } from "../types";
 
 interface QueueItem {
   sessionId: number;
@@ -84,15 +84,26 @@ class ScanQueue {
 
       if (!identifications.length) {
         db.prepare(
-          "UPDATE scan_sessions SET status = 'completed', card_count = 0, identified_cards = '[]' WHERE id = ?",
+          "UPDATE scan_sessions SET status = 'completed', card_count = 0, candidates = '[]' WHERE id = ?",
         ).run(sessionId);
         return;
       }
 
-      // 2. Look up each card in local catalog and upsert into user collection
-      const savedIds: string[] = [];
+      // 2. Resolve each reading against the local catalog and build a list of
+      //    candidates for the user to review. Nothing is written to the
+      //    collection here — that happens on POST /api/scan/:id/confirm.
+      const candidates: ScanCandidate[] = [];
+      let matchedCount = 0;
 
-      for (const id of identifications) {
+      for (let i = 0; i < identifications.length; i++) {
+        const id = identifications[i];
+        const raw = {
+          name: id.name,
+          set: id.set,
+          number: id.number,
+          ...(id.hp !== undefined ? { hp: id.hp } : {}),
+        };
+
         let apiCard = null;
         try {
           apiCard = await searchCard(id.name, id.set, id.number, id.hp);
@@ -103,15 +114,36 @@ class ScanQueue {
           );
         }
 
-        if (!apiCard) continue;
+        if (!apiCard) {
+          candidates.push({
+            index: i,
+            matched: false,
+            raw,
+            alreadyInCollection: false,
+            currentQuantity: 0,
+          });
+          continue;
+        }
 
-        upsertCard(mapToCard(apiCard));
-        savedIds.push(apiCard.id);
+        const cardData = mapToCard(apiCard);
+        const existing = db
+          .prepare("SELECT quantity FROM cards WHERE id = ?")
+          .get(cardData.id) as { quantity: number } | undefined;
+
+        candidates.push({
+          index: i,
+          matched: true,
+          raw,
+          card: cardData,
+          alreadyInCollection: existing !== undefined,
+          currentQuantity: existing?.quantity ?? 0,
+        });
+        matchedCount++;
       }
 
       db.prepare(
-        "UPDATE scan_sessions SET status = 'completed', card_count = ?, identified_cards = ? WHERE id = ?",
-      ).run(savedIds.length, JSON.stringify(savedIds), sessionId);
+        "UPDATE scan_sessions SET status = 'completed', card_count = ?, candidates = ? WHERE id = ?",
+      ).run(matchedCount, JSON.stringify(candidates), sessionId);
     } catch (err) {
       const message = err instanceof Error ? err.message : "Unknown error";
       console.error(`[queue] Scan ${sessionId} failed:`, message);

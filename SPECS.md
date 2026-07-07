@@ -282,18 +282,19 @@ map:
 
 ## 9. API Backend (Endpoints)
 
-| Metodo   | Path                      | Descrizione                                               |
-| -------- | ------------------------- | --------------------------------------------------------- |
-| `POST`   | `/api/scan`               | Upload foto → accoda scansione (202, ritorna `sessionId`) |
-| `GET`    | `/api/scan/:id`           | Polling stato scansione                                   |
-| `GET`    | `/api/cards`              | Lista carte (con filtri/paginazione)                      |
-| `GET`    | `/api/cards/:id`          | Dettaglio singola carta                                   |
-| `DELETE` | `/api/cards/:id`          | Rimuovi una copia (elimina la riga quando arriva a 0)     |
-| `PATCH`  | `/api/cards/:id/quantity` | Aggiorna quantità manualmente                             |
-| `GET`    | `/api/stats`              | Statistiche collezione                                    |
-| `GET`    | `/api/catalog`            | Stato catalogo locale (conteggio, seeding)                |
-| `POST`   | `/api/catalog/update`     | Avvia re-seeding del catalogo in background               |
-| `GET`    | `/api/health`             | Health check                                              |
+| Metodo   | Path                      | Descrizione                                                               |
+| -------- | ------------------------- | ------------------------------------------------------------------------- |
+| `POST`   | `/api/scan`               | Upload foto → accoda scansione (202, ritorna `sessionId`)                 |
+| `GET`    | `/api/scan/:id`           | Polling stato scansione + candidati da rivedere                           |
+| `POST`   | `/api/scan/:id/confirm`   | Applica le decisioni di revisione (`add`/`skip`) e committa in collezione |
+| `GET`    | `/api/cards`              | Lista carte (con filtri/paginazione)                                      |
+| `GET`    | `/api/cards/:id`          | Dettaglio singola carta                                                   |
+| `DELETE` | `/api/cards/:id`          | Rimuovi una copia (elimina la riga quando arriva a 0)                     |
+| `PATCH`  | `/api/cards/:id/quantity` | Aggiorna quantità manualmente                                             |
+| `GET`    | `/api/stats`              | Statistiche collezione                                                    |
+| `GET`    | `/api/catalog`            | Stato catalogo locale (conteggio, seeding)                                |
+| `POST`   | `/api/catalog/update`     | Avvia re-seeding del catalogo in background                               |
+| `GET`    | `/api/health`             | Health check                                                              |
 
 ### Parametri GET `/api/cards`
 
