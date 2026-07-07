@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.2.9] - 2026-07-07
+
+### Fixed
+
+- **Crash all'avvio su DB esistenti (`no such column: ptcgo_code`)**: la creazione dell'indice `idx_catalog_ptcgo_code` era in `SCHEMA_V1` e girava prima della migrazione che aggiunge la colonna, fallendo su `card_catalog` creati da versioni precedenti. L'indice ora viene creato in `runMigrations()` dopo aver garantito la colonna (idempotente, sicuro sia su DB nuovi che esistenti)
+
 ## [0.2.8] - 2026-07-07
 
 ### Fixed

@@ -70,8 +70,9 @@ const SCHEMA_V1 = `
 
   CREATE INDEX IF NOT EXISTS idx_catalog_name       ON card_catalog(name);
   CREATE INDEX IF NOT EXISTS idx_catalog_set_id     ON card_catalog(set_id);
-  CREATE INDEX IF NOT EXISTS idx_catalog_ptcgo_code ON card_catalog(ptcgo_code);
   CREATE INDEX IF NOT EXISTS idx_catalog_number     ON card_catalog(number);
+  -- Note: idx_catalog_ptcgo_code is created in runMigrations() after ensuring
+  -- the ptcgo_code column exists (older DBs created card_catalog without it).
 
   INSERT OR IGNORE INTO schema_version (version) VALUES (1);
 `;
@@ -115,11 +116,15 @@ function runMigrations(): void {
 
   if (!catalogCols.some((c) => c.name === "ptcgo_code")) {
     db.exec("ALTER TABLE card_catalog ADD COLUMN ptcgo_code TEXT");
-    db.exec(
-      "CREATE INDEX IF NOT EXISTS idx_catalog_ptcgo_code ON card_catalog(ptcgo_code)",
-    );
     console.log("[db] Migrated: added card_catalog.ptcgo_code");
   }
+
+  // Idempotent: safe on both fresh DBs (column from CREATE TABLE) and older
+  // DBs (column just added above). Kept out of SCHEMA_V1 so it never runs
+  // against a pre-existing card_catalog that lacks the column.
+  db.exec(
+    "CREATE INDEX IF NOT EXISTS idx_catalog_ptcgo_code ON card_catalog(ptcgo_code)",
+  );
 }
 
 export function getDb(): DatabaseSync {
