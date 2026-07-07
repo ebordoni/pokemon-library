@@ -12,6 +12,7 @@ import {
   YAxis,
 } from "recharts";
 import { api } from "../api/client";
+import ThemeToggle from "../components/ThemeToggle";
 import type { CollectionStats } from "../types";
 
 // Matches TypeBadge colors
@@ -30,7 +31,7 @@ const TYPE_HEX: Record<string, string> = {
 };
 
 const SUPERTYPE_HEX: Record<string, string> = {
-  "Pokémon": "#3b82f6",
+  Pokémon: "#3b82f6",
   Trainer: "#16a34a",
   Energy: "#f97316",
 };
@@ -45,11 +46,15 @@ function StatCard({
   accent?: string;
 }) {
   return (
-    <div className="bg-white rounded-xl p-4 shadow-sm text-center">
-      <p className={`text-2xl font-bold ${accent ?? "text-gray-900"}`}>
+    <div className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm text-center">
+      <p
+        className={`text-2xl font-bold ${accent ?? "text-gray-900 dark:text-gray-100"}`}
+      >
         {typeof value === "number" ? value.toLocaleString() : value}
       </p>
-      <p className="text-xs text-gray-500 mt-0.5 leading-tight">{label}</p>
+      <p className="text-xs text-gray-500 dark:text-gray-300 mt-0.5 leading-tight">
+        {label}
+      </p>
     </div>
   );
 }
@@ -76,8 +81,13 @@ export default function Stats() {
   if (!stats || stats.totalCards === 0) {
     return (
       <div className="px-4 pt-6">
-        <h1 className="text-xl font-bold text-gray-900 mb-6">Statistiche</h1>
-        <div className="flex flex-col items-center justify-center py-24 text-gray-400 gap-2">
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+            Statistiche
+          </h1>
+          <ThemeToggle />
+        </div>
+        <div className="flex flex-col items-center justify-center py-24 text-gray-400 dark:text-gray-500 gap-2">
           <svg
             className="w-12 h-12"
             fill="none"
@@ -92,7 +102,9 @@ export default function Stats() {
             />
           </svg>
           <p className="font-medium">Nessun dato</p>
-          <p className="text-sm">Scansiona delle carte per vedere le statistiche</p>
+          <p className="text-sm">
+            Scansiona delle carte per vedere le statistiche
+          </p>
         </div>
       </div>
     );
@@ -116,7 +128,12 @@ export default function Stats() {
 
   return (
     <div className="px-4 pt-6 space-y-5">
-      <h1 className="text-xl font-bold text-gray-900">Statistiche</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+          Statistiche
+        </h1>
+        <ThemeToggle />
+      </div>
 
       {/* Summary */}
       <div className="grid grid-cols-3 gap-3">
@@ -125,14 +142,20 @@ export default function Stats() {
         <StatCard
           label="Duplicate"
           value={stats.duplicateCards}
-          accent={stats.duplicateCards > 0 ? "text-pokemon-red" : "text-gray-900"}
+          accent={
+            stats.duplicateCards > 0
+              ? "text-pokemon-red"
+              : "text-gray-900 dark:text-gray-100"
+          }
         />
       </div>
 
       {/* By Supertype — donut */}
       {supertypeData.length > 0 && (
-        <div className="bg-white rounded-xl p-4 shadow-sm">
-          <p className="text-sm font-semibold text-gray-700 mb-1">Categoria</p>
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm">
+          <p className="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-1">
+            Categoria
+          </p>
           <div className="flex items-center gap-4">
             <div className="shrink-0" style={{ width: 130, height: 130 }}>
               <ResponsiveContainer width="100%" height="100%">
@@ -161,15 +184,22 @@ export default function Stats() {
             </div>
             <div className="space-y-2 flex-1">
               {supertypeData.map(({ name, value }) => (
-                <div key={name} className="flex items-center justify-between text-sm">
+                <div
+                  key={name}
+                  className="flex items-center justify-between text-sm"
+                >
                   <div className="flex items-center gap-2">
                     <span
                       className="w-2.5 h-2.5 rounded-full shrink-0"
                       style={{ background: SUPERTYPE_HEX[name] ?? "#9ca3af" }}
                     />
-                    <span className="text-gray-700">{name}</span>
+                    <span className="text-gray-700 dark:text-gray-200">
+                      {name}
+                    </span>
                   </div>
-                  <span className="font-semibold text-gray-900">{value}</span>
+                  <span className="font-semibold text-gray-900 dark:text-gray-100">
+                    {value}
+                  </span>
                 </div>
               ))}
             </div>
@@ -179,8 +209,8 @@ export default function Stats() {
 
       {/* Energy Types — horizontal bars */}
       {typeData.length > 0 && (
-        <div className="bg-white rounded-xl p-4 shadow-sm">
-          <p className="text-sm font-semibold text-gray-700 mb-3">
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm">
+          <p className="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-3">
             Tipi Energia
           </p>
           <ResponsiveContainer
@@ -220,8 +250,10 @@ export default function Stats() {
 
       {/* Rarity */}
       {rarityData.length > 0 && (
-        <div className="bg-white rounded-xl p-4 shadow-sm">
-          <p className="text-sm font-semibold text-gray-700 mb-3">Rarità</p>
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm">
+          <p className="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-3">
+            Rarità
+          </p>
           <ResponsiveContainer
             width="100%"
             height={Math.max(120, rarityData.length * 28)}
@@ -252,20 +284,24 @@ export default function Stats() {
 
       {/* Top 10 Sets — CSS progress bars */}
       {stats.topSets.length > 0 && (
-        <div className="bg-white rounded-xl p-4 shadow-sm">
-          <p className="text-sm font-semibold text-gray-700 mb-3">Set più frequenti</p>
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm">
+          <p className="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-3">
+            Set più frequenti
+          </p>
           <div className="space-y-2.5">
             {stats.topSets.map(({ setName, count }) => {
               const pct = Math.round((count / maxSet) * 100);
               return (
                 <div key={setName}>
                   <div className="flex justify-between text-sm mb-1">
-                    <span className="text-gray-700 truncate mr-2">{setName}</span>
-                    <span className="text-gray-500 font-medium shrink-0">
+                    <span className="text-gray-700 dark:text-gray-200 truncate mr-2">
+                      {setName}
+                    </span>
+                    <span className="text-gray-500 dark:text-gray-300 font-medium shrink-0">
                       {count}
                     </span>
                   </div>
-                  <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                  <div className="h-1.5 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
                     <div
                       className="h-full bg-pokemon-blue rounded-full transition-all"
                       style={{ width: `${pct}%` }}

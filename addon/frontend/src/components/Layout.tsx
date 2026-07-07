@@ -4,7 +4,7 @@ import CatalogStatusBanner from "./CatalogStatusBanner";
 
 export default function Layout() {
   return (
-    <div className="min-h-dvh bg-gray-50 flex flex-col">
+    <div className="min-h-dvh bg-gray-50 dark:bg-gray-900 flex flex-col transition-colors">
       <CatalogStatusBanner />
 
       {/* pb-20 leaves room for the fixed bottom nav bar */}

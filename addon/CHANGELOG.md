@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.1.17] - 2026-07-07
+
+### Added
+
+- **Tema chiaro/scuro**: nuovo interruttore per passare tra tema chiaro e scuro, presente nell'intestazione di tutte le pagine (Collezione, Aggiungi Carte, Statistiche, Dettaglio carta). La scelta viene salvata in `localStorage` e riapplicata all'avvio (senza flash grazie a uno script inline in `index.html`). Tutte le superfici, testi, bordi e stati hover sono stati adattati al tema scuro tramite le varianti `dark:` di Tailwind (`darkMode: "class"`)
+
 ## [0.1.16] - 2026-07-07
 
 ### Changed

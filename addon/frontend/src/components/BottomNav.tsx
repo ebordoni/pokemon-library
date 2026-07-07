@@ -68,7 +68,7 @@ const NAV_ITEMS = [
 
 export default function BottomNav() {
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-30 bg-white border-t border-gray-200 pb-safe">
+    <nav className="fixed bottom-0 left-0 right-0 z-30 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 pb-safe transition-colors">
       <div className="flex max-w-screen-sm mx-auto">
         {NAV_ITEMS.map(({ to, label, icon }) => (
           <NavLink
@@ -78,12 +78,20 @@ export default function BottomNav() {
           >
             {({ isActive }) => (
               <>
-                <span className={isActive ? "text-pokemon-blue" : "text-gray-400"}>
+                <span
+                  className={
+                    isActive
+                      ? "text-pokemon-blue"
+                      : "text-gray-400 dark:text-gray-500"
+                  }
+                >
                   {icon}
                 </span>
                 <span
                   className={`text-xs mt-0.5 font-medium ${
-                    isActive ? "text-pokemon-blue" : "text-gray-400"
+                    isActive
+                      ? "text-pokemon-blue"
+                      : "text-gray-400 dark:text-gray-500"
                   }`}
                 >
                   {label}

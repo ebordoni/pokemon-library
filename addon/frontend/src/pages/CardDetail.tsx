@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { api } from "../api/client";
+import ThemeToggle from "../components/ThemeToggle";
 import TypeBadge from "../components/TypeBadge";
 import type { Card } from "../types";
 
@@ -44,7 +45,9 @@ export default function CardDetail() {
   if (error || !card) {
     return (
       <div className="flex flex-col items-center justify-center py-32 gap-4 px-4">
-        <p className="text-gray-600">{error ?? "Carta non trovata"}</p>
+        <p className="text-gray-600 dark:text-gray-300">
+          {error ?? "Carta non trovata"}
+        </p>
         <button
           onClick={() => navigate(-1)}
           className="text-pokemon-blue font-medium touch-manipulation"
@@ -61,11 +64,11 @@ export default function CardDetail() {
       <div className="flex items-center gap-2 px-4 pt-6 mb-4">
         <button
           onClick={() => navigate(-1)}
-          className="p-2 -ml-2 rounded-full hover:bg-gray-100 touch-manipulation"
+          className="p-2 -ml-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 touch-manipulation"
           aria-label="Back"
         >
           <svg
-            className="w-5 h-5 text-gray-700"
+            className="w-5 h-5 text-gray-700 dark:text-gray-200"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -78,9 +81,12 @@ export default function CardDetail() {
             />
           </svg>
         </button>
-        <h1 className="font-bold text-lg text-gray-900 truncate">
+        <h1 className="font-bold text-lg text-gray-900 dark:text-gray-100 truncate">
           {card.name}
         </h1>
+        <div className="ml-auto">
+          <ThemeToggle />
+        </div>
       </div>
 
       {/* Card image */}
@@ -96,22 +102,32 @@ export default function CardDetail() {
 
       <div className="px-4 space-y-3">
         {/* Set / number */}
-        <div className="bg-white rounded-xl p-4 shadow-sm flex justify-between">
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm flex justify-between">
           <div>
-            <p className="text-xs text-gray-400 mb-0.5">Set</p>
-            <p className="font-medium text-gray-900 text-sm">{card.setName}</p>
+            <p className="text-xs text-gray-400 dark:text-gray-500 mb-0.5">
+              Set
+            </p>
+            <p className="font-medium text-gray-900 dark:text-gray-100 text-sm">
+              {card.setName}
+            </p>
           </div>
           <div className="text-right">
-            <p className="text-xs text-gray-400 mb-0.5">Numero</p>
-            <p className="font-medium text-gray-900 text-sm">#{card.number}</p>
+            <p className="text-xs text-gray-400 dark:text-gray-500 mb-0.5">
+              Numero
+            </p>
+            <p className="font-medium text-gray-900 dark:text-gray-100 text-sm">
+              #{card.number}
+            </p>
           </div>
         </div>
 
         {/* Stats */}
-        <div className="bg-white rounded-xl p-4 shadow-sm space-y-2.5">
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm space-y-2.5">
           {card.types.length > 0 && (
             <div className="flex items-center justify-between">
-              <span className="text-xs text-gray-400">Tipo</span>
+              <span className="text-xs text-gray-400 dark:text-gray-500">
+                Tipo
+              </span>
               <div className="flex gap-1">
                 {card.types.map((t) => (
                   <TypeBadge key={t} type={t} />
@@ -121,55 +137,65 @@ export default function CardDetail() {
           )}
           {card.hp && (
             <div className="flex items-center justify-between">
-              <span className="text-xs text-gray-400">HP</span>
-              <span className="font-semibold text-gray-900 text-sm">
+              <span className="text-xs text-gray-400 dark:text-gray-500">
+                HP
+              </span>
+              <span className="font-semibold text-gray-900 dark:text-gray-100 text-sm">
                 {card.hp}
               </span>
             </div>
           )}
           {card.rarity && (
             <div className="flex items-center justify-between">
-              <span className="text-xs text-gray-400">Rarità</span>
-              <span className="text-sm text-gray-700">{card.rarity}</span>
+              <span className="text-xs text-gray-400 dark:text-gray-500">
+                Rarità
+              </span>
+              <span className="text-sm text-gray-700 dark:text-gray-200">
+                {card.rarity}
+              </span>
             </div>
           )}
           {card.evolvesFrom && (
             <div className="flex items-center justify-between">
-              <span className="text-xs text-gray-400">Si evolve da</span>
-              <span className="text-sm text-gray-700">{card.evolvesFrom}</span>
+              <span className="text-xs text-gray-400 dark:text-gray-500">
+                Si evolve da
+              </span>
+              <span className="text-sm text-gray-700 dark:text-gray-200">
+                {card.evolvesFrom}
+              </span>
             </div>
           )}
         </div>
 
         {/* Attacks */}
         {card.attacks.length > 0 && (
-          <div className="bg-white rounded-xl p-4 shadow-sm">
-            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm">
+            <p className="text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wide mb-3">
               Attacchi
             </p>
             <div className="space-y-3">
               {card.attacks.map((attack, i) => (
                 <div
                   key={i}
-                  className="border-t border-gray-100 first:border-0 pt-3 first:pt-0"
+                  className="border-t border-gray-100 dark:border-gray-700 first:border-0 pt-3 first:pt-0"
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <span className="text-xs text-gray-400 font-mono">
+                      <span className="text-xs text-gray-400 dark:text-gray-500 font-mono">
                         {attack.cost.map((c) => c[0]).join("")}
                       </span>
-                      <span className="font-medium text-sm text-gray-900">
+                      <span className="font-medium text-sm text-gray-900 dark:text-gray-100">
                         {attack.name}
                       </span>
                     </div>
                     {attack.damage && (
-                      <span className="font-bold text-sm text-gray-900">
+                      <span className="font-bold text-sm text-gray-900 dark:text-gray-100">
                         {attack.damage}
                       </span>
                     )}
                   </div>
                   {attack.text && (
-                    <p className="text-xs text-gray-500 mt-1 leading-relaxed">
+                    <p className="text-xs text-gray-500 dark:text-gray-300 mt-1 leading-relaxed">
                       {attack.text}
                     </p>
                   )}
@@ -180,17 +206,19 @@ export default function CardDetail() {
         )}
 
         {/* Quantity control */}
-        <div className="bg-white rounded-xl p-4 shadow-sm">
-          <p className="text-xs text-gray-400 mb-3">Copie nella collezione</p>
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm">
+          <p className="text-xs text-gray-400 dark:text-gray-500 mb-3">
+            Copie nella collezione
+          </p>
           <div className="flex items-center justify-between">
             <button
               onClick={() => void handleQuantity(-1)}
-              className="w-11 h-11 rounded-full border border-gray-300 flex items-center justify-center text-xl font-light hover:bg-gray-50 active:scale-95 touch-manipulation"
+              className="w-11 h-11 rounded-full border border-gray-300 dark:border-gray-600 flex items-center justify-center text-xl font-light hover:bg-gray-50 dark:hover:bg-gray-700 active:scale-95 touch-manipulation"
               aria-label="Rimuovi uno"
             >
               −
             </button>
-            <span className="text-3xl font-bold text-gray-900">
+            <span className="text-3xl font-bold text-gray-900 dark:text-gray-100">
               {card.quantity}
             </span>
             <button
@@ -211,7 +239,7 @@ export default function CardDetail() {
         {/* Remove all */}
         <button
           onClick={() => void handleQuantity(-card.quantity)}
-          className="w-full py-3 rounded-xl border border-red-200 text-red-500 text-sm font-medium hover:bg-red-50 active:bg-red-100 touch-manipulation"
+          className="w-full py-3 rounded-xl border border-red-200 dark:border-red-900/50 text-red-500 dark:text-red-400 text-sm font-medium hover:bg-red-50 dark:hover:bg-red-900/20 active:bg-red-100 touch-manipulation"
         >
           Rimuovi dalla collezione
         </button>

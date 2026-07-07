@@ -30,7 +30,7 @@ export default function CatalogStatusBanner() {
   if (!status?.isSeeding) return null;
 
   return (
-    <div className="bg-yellow-50 border-b border-yellow-200 px-4 py-2 flex items-center justify-center gap-2 text-sm text-yellow-800">
+    <div className="bg-yellow-50 dark:bg-yellow-900/30 border-b border-yellow-200 dark:border-yellow-800 px-4 py-2 flex items-center justify-center gap-2 text-sm text-yellow-800 dark:text-yellow-200">
       <svg
         className="w-4 h-4 animate-spin shrink-0"
         fill="none"
@@ -53,7 +53,7 @@ export default function CatalogStatusBanner() {
       <span>
         Costruzione catalogo carte…
         {status.seedingProgress && (
-          <span className="text-yellow-600 ml-1 text-xs">
+          <span className="text-yellow-600 dark:text-yellow-400 ml-1 text-xs">
             {status.seedingProgress}
           </span>
         )}

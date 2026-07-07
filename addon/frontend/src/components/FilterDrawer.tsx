@@ -44,7 +44,7 @@ export default function FilterDrawer({ filters, onFiltersChange }: Props) {
       {/* Trigger button */}
       <button
         onClick={() => setOpen(true)}
-        className="relative flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-gray-300 bg-white text-sm text-gray-700 hover:bg-gray-50 active:bg-gray-100 touch-manipulation"
+        className="relative flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 active:bg-gray-100 dark:active:bg-gray-700 touch-manipulation"
         aria-label="Apri filtri"
       >
         <svg
@@ -78,28 +78,28 @@ export default function FilterDrawer({ filters, onFiltersChange }: Props) {
 
       {/* Bottom sheet */}
       <div
-        className={`fixed bottom-0 left-0 right-0 z-50 bg-white rounded-t-2xl shadow-2xl transition-transform duration-300 ${
+        className={`fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-gray-800 rounded-t-2xl shadow-2xl transition-transform duration-300 ${
           open ? "translate-y-0" : "translate-y-full"
         }`}
         aria-hidden={!open}
       >
         {/* Handle bar */}
         <div className="flex justify-center pt-3 pb-1">
-          <div className="w-10 h-1 rounded-full bg-gray-300" />
+          <div className="w-10 h-1 rounded-full bg-gray-300 dark:bg-gray-600" />
         </div>
 
         <div className="px-4 pb-4 max-h-[80dvh] overflow-y-auto">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="font-semibold text-lg text-gray-900">
+            <h2 className="font-semibold text-lg text-gray-900 dark:text-gray-100">
               Filtra Carte
             </h2>
             <button
               onClick={() => setOpen(false)}
-              className="p-1.5 rounded-full hover:bg-gray-100 touch-manipulation"
+              className="p-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 touch-manipulation"
               aria-label="Chiudi"
             >
               <svg
-                className="w-5 h-5 text-gray-500"
+                className="w-5 h-5 text-gray-500 dark:text-gray-300"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -115,7 +115,9 @@ export default function FilterDrawer({ filters, onFiltersChange }: Props) {
           </div>
 
           {/* Supertype */}
-          <p className="text-sm font-medium text-gray-600 mb-2">Categoria</p>
+          <p className="text-sm font-medium text-gray-600 dark:text-gray-300 mb-2">
+            Categoria
+          </p>
           <div className="flex gap-2 flex-wrap mb-4">
             {SUPERTYPES.map((st) => (
               <button
@@ -131,7 +133,7 @@ export default function FilterDrawer({ filters, onFiltersChange }: Props) {
                 className={`px-3 py-1.5 rounded-full text-sm border transition-colors touch-manipulation ${
                   filters.supertype === st
                     ? "bg-pokemon-blue text-white border-pokemon-blue"
-                    : "border-gray-300 text-gray-700 hover:bg-gray-50"
+                    : "border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700"
                 }`}
               >
                 {st}
@@ -140,7 +142,9 @@ export default function FilterDrawer({ filters, onFiltersChange }: Props) {
           </div>
 
           {/* Energy type */}
-          <p className="text-sm font-medium text-gray-600 mb-2">Tipo Energia</p>
+          <p className="text-sm font-medium text-gray-600 dark:text-gray-300 mb-2">
+            Tipo Energia
+          </p>
           <div className="flex gap-2 flex-wrap mb-4">
             {ENERGY_TYPES.map((t) => (
               <button
@@ -151,7 +155,7 @@ export default function FilterDrawer({ filters, onFiltersChange }: Props) {
                 className={`px-3 py-1.5 rounded-full text-sm border transition-colors touch-manipulation ${
                   filters.type === t
                     ? "bg-pokemon-blue text-white border-pokemon-blue"
-                    : "border-gray-300 text-gray-700 hover:bg-gray-50"
+                    : "border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700"
                 }`}
               >
                 {t}
@@ -167,17 +171,17 @@ export default function FilterDrawer({ filters, onFiltersChange }: Props) {
             className={`w-full py-2.5 rounded-xl text-sm font-medium border transition-colors touch-manipulation mb-4 ${
               filters.duplicates
                 ? "bg-pokemon-red text-white border-pokemon-red"
-                : "border-gray-300 text-gray-700 hover:bg-gray-50"
+                : "border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700"
             }`}
           >
             {filters.duplicates ? "✓ Solo duplicati" : "Solo duplicati"}
           </button>
 
           {/* Actions */}
-          <div className="flex gap-3 pt-2 border-t border-gray-100">
+          <div className="flex gap-3 pt-2 border-t border-gray-100 dark:border-gray-700">
             <button
               onClick={clear}
-              className="flex-1 py-2.5 rounded-xl text-sm font-medium border border-gray-300 text-gray-700 hover:bg-gray-50 touch-manipulation"
+              className="flex-1 py-2.5 rounded-xl text-sm font-medium border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 touch-manipulation"
             >
               Azzera
             </button>

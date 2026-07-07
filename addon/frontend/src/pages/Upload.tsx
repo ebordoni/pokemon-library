@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { api } from "../api/client";
-import CardTile from "../components/CardTile";
 import CameraCapture from "../components/CameraCapture";
+import CardTile from "../components/CardTile";
+import ThemeToggle from "../components/ThemeToggle";
 import { useScanStatus } from "../hooks/useScanStatus";
 import type { ScanStatusResponse } from "../types";
 
@@ -17,7 +18,9 @@ export default function Upload() {
   const [isDragging, setIsDragging] = useState(false);
 
   const scanStatus = useScanStatus(stage === "polling" ? sessionId : null);
-  const [finalResult, setFinalResult] = useState<ScanStatusResponse | null>(null);
+  const [finalResult, setFinalResult] = useState<ScanStatusResponse | null>(
+    null,
+  );
 
   // Transition out of polling when scan reaches a terminal state
   useEffect(() => {
@@ -93,7 +96,12 @@ export default function Upload() {
 
   return (
     <div className="max-w-md mx-auto px-4 pt-6">
-      <h1 className="text-xl font-bold text-gray-900 mb-6">Aggiungi Carte</h1>
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+          Aggiungi Carte
+        </h1>
+        <ThemeToggle />
+      </div>
 
       {/* Overlay fotocamera (getUserMedia) */}
       {showCamera && (
@@ -126,10 +134,10 @@ export default function Upload() {
             onDragOver={onDragOver}
             onDragLeave={onDragLeave}
             onDrop={onDrop}
-            className={`w-full py-10 flex flex-col items-center justify-center gap-3 bg-white rounded-2xl border-2 border-dashed transition-colors ${
+            className={`w-full py-10 flex flex-col items-center justify-center gap-3 bg-white dark:bg-gray-800 rounded-2xl border-2 border-dashed transition-colors ${
               isDragging
-                ? "border-pokemon-blue bg-blue-50 scale-[0.99]"
-                : "border-gray-200"
+                ? "border-pokemon-blue bg-blue-50 dark:bg-blue-900/20 scale-[0.99]"
+                : "border-gray-200 dark:border-gray-700"
             }`}
           >
             {isDragging ? (
@@ -137,7 +145,7 @@ export default function Upload() {
                 Rilascia la foto qui
               </p>
             ) : (
-              <p className="text-sm text-gray-400 px-4 text-center">
+              <p className="text-sm text-gray-400 dark:text-gray-500 px-4 text-center">
                 Trascina un'immagine qui, oppure usa i pulsanti sotto
               </p>
             )}
@@ -150,11 +158,24 @@ export default function Upload() {
               onClick={() => setShowCamera(true)}
               className="flex-1 flex flex-col items-center gap-2 py-5 bg-pokemon-blue text-white rounded-2xl touch-manipulation active:scale-[0.97] transition-transform"
             >
-              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
-                  d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
-                  d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+              <svg
+                className="w-8 h-8"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1.5}
+                  d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
+                />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1.5}
+                  d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"
+                />
               </svg>
               <span className="text-sm font-semibold">Fotocamera</span>
             </button>
@@ -162,17 +183,26 @@ export default function Upload() {
             {/* Libreria foto */}
             <button
               onClick={() => galleryInputRef.current?.click()}
-              className="flex-1 flex flex-col items-center gap-2 py-5 bg-white border-2 border-gray-200 text-gray-700 rounded-2xl touch-manipulation active:scale-[0.97] transition-transform"
+              className="flex-1 flex flex-col items-center gap-2 py-5 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200 rounded-2xl touch-manipulation active:scale-[0.97] transition-transform"
             >
-              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
-                  d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              <svg
+                className="w-8 h-8"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1.5}
+                  d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                />
               </svg>
               <span className="text-sm font-semibold">Libreria foto</span>
             </button>
           </div>
 
-          <p className="text-center text-xs text-gray-400 mt-4">
+          <p className="text-center text-xs text-gray-400 dark:text-gray-500 mt-4">
             Le carte vengono identificate da Grok Vision AI
           </p>
         </>
@@ -182,7 +212,7 @@ export default function Upload() {
       {stage === "uploading" && (
         <div className="flex flex-col items-center justify-center py-24 gap-4">
           <div className="w-12 h-12 border-4 border-pokemon-blue border-t-transparent rounded-full animate-spin" />
-          <p className="text-gray-600">Caricamento foto…</p>
+          <p className="text-gray-600 dark:text-gray-300">Caricamento foto…</p>
         </div>
       )}
 
@@ -191,8 +221,10 @@ export default function Upload() {
         <div className="flex flex-col items-center justify-center py-24 gap-4">
           <div className="w-12 h-12 border-4 border-pokemon-yellow border-t-transparent rounded-full animate-spin" />
           <div className="text-center">
-            <p className="text-gray-700 font-medium">{processingMsg}</p>
-            <p className="text-xs text-gray-400 mt-1">
+            <p className="text-gray-700 dark:text-gray-200 font-medium">
+              {processingMsg}
+            </p>
+            <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
               Potrebbe richiedere 10–30 secondi
             </p>
           </div>
@@ -203,7 +235,7 @@ export default function Upload() {
       {stage === "done" && finalResult && (
         <div>
           <div className="flex items-center justify-between mb-4">
-            <p className="font-semibold text-gray-900">
+            <p className="font-semibold text-gray-900 dark:text-gray-100">
               {finalResult.cards.length === 0
                 ? "Nessuna carta riconosciuta"
                 : finalResult.cards.length === 1
@@ -225,7 +257,7 @@ export default function Upload() {
               ))}
             </div>
           ) : (
-            <div className="text-center py-12 text-gray-400">
+            <div className="text-center py-12 text-gray-400 dark:text-gray-500">
               <p className="text-sm">
                 Riprova con più luce o avvicinati alle carte
               </p>
@@ -258,7 +290,9 @@ export default function Upload() {
               />
             </svg>
           </div>
-          <p className="text-gray-700 text-center text-sm max-w-xs">{errorMsg}</p>
+          <p className="text-gray-700 dark:text-gray-200 text-center text-sm max-w-xs">
+            {errorMsg}
+          </p>
           <button
             onClick={reset}
             className="px-6 py-2.5 bg-pokemon-blue text-white rounded-xl text-sm font-medium touch-manipulation"

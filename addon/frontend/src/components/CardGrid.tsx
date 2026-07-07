@@ -13,7 +13,7 @@ export default function CardGrid({ cards, isLoading }: CardGridProps) {
         {Array.from({ length: 12 }).map((_, i) => (
           <div
             key={i}
-            className="aspect-[3/4] bg-gray-200 rounded-xl animate-pulse"
+            className="aspect-[3/4] bg-gray-200 dark:bg-gray-700 rounded-xl animate-pulse"
           />
         ))}
       </div>
@@ -22,7 +22,7 @@ export default function CardGrid({ cards, isLoading }: CardGridProps) {
 
   if (!cards?.length) {
     return (
-      <div className="flex flex-col items-center justify-center py-24 text-gray-400 gap-2">
+      <div className="flex flex-col items-center justify-center py-24 text-gray-400 dark:text-gray-500 gap-2">
         <svg
           className="w-12 h-12"
           fill="none"
