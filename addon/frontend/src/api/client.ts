@@ -63,7 +63,11 @@ export const api = {
   // ── Catalog ────────────────────────────────────────────────────────────
   getCatalogStatus: () => apiClient.get<CatalogStatus>("/catalog"),
 
-  triggerCatalogUpdate: () => apiClient.post("/catalog/update"),
+  triggerCatalogUpdate: () =>
+    apiClient.post<{ message: string }>("/catalog/update"),
+
+  /** Empty the downloaded catalog (does not touch the collection) */
+  clearCatalog: () => apiClient.post<{ removed: number }>("/catalog/clear"),
 
   // ── Manual entry ───────────────────────────────────────────────────────
   /** Preview a catalog card by printed set code + number (no write) */

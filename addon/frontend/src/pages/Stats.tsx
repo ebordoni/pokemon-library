@@ -314,6 +314,9 @@ export default function Stats() {
         </div>
       )}
 
+      {/* Gestione catalogo carte */}
+      <CatalogManager />
+
       <div className="h-4" />
     </div>
   );

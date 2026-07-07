@@ -91,6 +91,24 @@ export function getCatalogStatus(): CatalogStatus {
 }
 
 /**
+ * Empties the local card_catalog table (the downloaded PokemonTCG dataset).
+ * Does NOT touch the user's collection (the `cards` table). Refuses to run
+ * while a seeding is in progress. Returns the number of rows removed.
+ */
+export function clearCatalog(): number {
+  if (seedingInProgress) {
+    throw new Error("Catalog seeding in progress — cannot clear now");
+  }
+  const db = getDb();
+  const { n } = db.prepare("SELECT COUNT(*) AS n FROM card_catalog").get() as {
+    n: number;
+  };
+  db.exec("DELETE FROM card_catalog");
+  console.log(`[catalog] Cleared ${n} cards from local catalog.`);
+  return n;
+}
+
+/**
  * Downloads every English set from PokemonTCG/pokemon-tcg-data on GitHub
  * and imports all cards into the local card_catalog table.
  * Safe to call multiple times — uses INSERT OR REPLACE.

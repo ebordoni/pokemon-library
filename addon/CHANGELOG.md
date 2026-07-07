@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.2.6] - 2026-07-07
+
+### Added
+
+- **Gestione catalogo carte** (pagina _Statistiche_): nuova sezione che mostra numero di carte, set e data dell'ultimo aggiornamento, con due azioni:
+  - **Aggiorna catalogo**: riscarica il dataset da PokemonTCG in background
+  - **Svuota catalogo**: elimina il catalogo locale scaricato (con conferma). Non tocca la collezione dell'utente
+- **Endpoint `POST /api/catalog/clear`**: svuota la tabella `card_catalog` (rifiuta l'operazione durante un seeding in corso)
+
+### Note
+
+- I pulsanti sono nell'app (Ingress) e non nella Configurazione dell'addon: il pannello Configurazione di Home Assistant supporta solo campi di form derivati dallo schema, non pulsanti d'azione
+
 ## [0.2.5] - 2026-07-07
 
 ### Added

@@ -66,4 +66,16 @@ router.post("/update", (_req: Request, res: Response) => {
   });
 });
 
+// POST /api/catalog/clear — empty the downloaded catalog (not the collection)
+router.post("/clear", (_req: Request, res: Response) => {
+  try {
+    const removed = clearCatalog();
+    res.json({ removed });
+  } catch (err) {
+    res.status(409).json({
+      error: err instanceof Error ? err.message : "Cannot clear catalog now",
+    });
+  }
+});
+
 export default router;
