@@ -63,7 +63,7 @@ export interface ScanSession {
   createdAt: string;
   cardCount: number;
   identifiedCards: string[];
-  status: "pending" | "completed" | "error";
+  status: "pending" | "processing" | "completed" | "error";
   errorMessage?: string;
 }
 

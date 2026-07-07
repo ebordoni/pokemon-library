@@ -78,10 +78,28 @@ export const useCollectionStore = create<CollectionState>((set, get) => ({
   },
 
   removeCard: async (id: string) => {
-    await api.deleteCard(id);
-    set((state) => ({
-      cards: state.cards.filter((c) => c.id !== id),
-      total: state.total - 1,
-    }));
+    // The backend removes one copy at a time: the row is only deleted when the
+    // last copy is removed (remainingQuantity === 0). Mirror that here so the
+    // UI stays in sync for cards with quantity > 1.
+    const { data } = await api.deleteCard(id);
+    set((state) => {
+      if (data.remainingQuantity > 0) {
+        return {
+          cards: state.cards.map((c) =>
+            c.id === id
+              ? {
+                  ...c,
+                  quantity: data.remainingQuantity,
+                  isDuplicate: data.remainingQuantity > 1,
+                }
+              : c,
+          ),
+        };
+      }
+      return {
+        cards: state.cards.filter((c) => c.id !== id),
+        total: Math.max(0, state.total - 1),
+      };
+    });
   },
 }));

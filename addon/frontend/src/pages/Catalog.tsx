@@ -22,9 +22,19 @@ export default function Catalog() {
     void fetchCards();
   }, [fetchCards]);
 
+  // Debounce the search input so we don't fire a request on every keystroke.
+  useEffect(() => {
+    const q = searchValue.trim();
+    if (q === (filters.q ?? "")) return;
+    const timer = setTimeout(() => {
+      setFilters({ ...filters, q: q || undefined });
+    }, 350);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchValue]);
+
   function handleSearch(q: string) {
     setSearchValue(q);
-    setFilters({ ...filters, q: q || undefined });
   }
 
   function handleFilters(newFilters: CardFilters) {
@@ -101,9 +111,7 @@ export default function Catalog() {
         <div className="flex gap-2 mb-3 flex-wrap">
           {filters.supertype && (
             <button
-              onClick={() =>
-                setFilters({ ...filters, supertype: undefined })
-              }
+              onClick={() => setFilters({ ...filters, supertype: undefined })}
               className="px-3 py-1 bg-pokemon-blue text-white text-xs rounded-full touch-manipulation"
             >
               {filters.supertype} ×
@@ -111,9 +119,7 @@ export default function Catalog() {
           )}
           {filters.type && (
             <button
-              onClick={() =>
-                setFilters({ ...filters, type: undefined })
-              }
+              onClick={() => setFilters({ ...filters, type: undefined })}
               className="px-3 py-1 bg-pokemon-blue text-white text-xs rounded-full touch-manipulation"
             >
               {filters.type} ×
@@ -121,9 +127,7 @@ export default function Catalog() {
           )}
           {filters.duplicates && (
             <button
-              onClick={() =>
-                setFilters({ ...filters, duplicates: undefined })
-              }
+              onClick={() => setFilters({ ...filters, duplicates: undefined })}
               className="px-3 py-1 bg-pokemon-red text-white text-xs rounded-full touch-manipulation"
             >
               Duplicati ×
@@ -154,4 +158,3 @@ export default function Catalog() {
     </div>
   );
 }
-

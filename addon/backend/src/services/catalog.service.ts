@@ -211,6 +211,14 @@ export async function seedCatalog(): Promise<void> {
     console.log(
       `[catalog] Seeding complete — ${totalCards} cards from ${importedSets} sets.`,
     );
+  } catch (err) {
+    // Never let a rejection escape: seedCatalog is invoked with `void`, so an
+    // uncaught error here would become an unhandledRejection and could crash
+    // the process on the first run (e.g. no network, timeout, GitHub 429).
+    console.error(
+      "[catalog] Seeding failed:",
+      err instanceof Error ? err.message : err,
+    );
   } finally {
     seedingInProgress = false;
     currentProgress = null;

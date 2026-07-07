@@ -1,5 +1,26 @@
 # Changelog
 
+## [0.1.14] - 2026-07-07
+
+### Fixed
+
+- **Seeding del catalogo robusto**: `seedCatalog()` era protetto solo da `try/finally`; se la prima richiesta a GitHub falliva (assenza di rete, timeout o 429) l'eccezione diventava un _unhandled rejection_ che poteva terminare il processo al primo avvio. Aggiunto un blocco `catch` che logga l'errore e resetta lo stato di seeding
+- **Sincronizzazione UI/DB sulla rimozione carte**: `removeCard` nello store rimuoveva sempre la carta dalla lista e decrementava il totale di 1, mentre il backend elimina la riga solo quando l'ultima copia viene rimossa. Ora lo store usa `remainingQuantity` restituito da `DELETE /api/cards/:id`: aggiorna la quantità se restano copie, rimuove la carta solo quando arriva a 0
+- **Rotte API inesistenti**: una richiesta a un endpoint `/api/*` non gestito ricadeva nel fallback SPA restituendo `index.html` con stato 200. Ora restituisce un 404 JSON corretto
+- **Versione nell'health check**: `/api/health` restituiva `0.1.0` hardcoded; ora legge la versione dinamicamente da `package.json`
+- **Statistiche `topSets`**: la query usava `GROUP BY set_id` selezionando `set_name` (colonna non aggregata, non deterministica in SQL standard); ora raggruppa per `set_id, set_name`
+
+### Changed
+
+- **Sicurezza — accesso solo via Ingress**: rimossa la sezione `ports` (8099/tcp) da `config.yaml`. L'addon non è più esposto direttamente sulla rete locale: l'unico accesso è tramite l'Ingress di Home Assistant, in linea con le specifiche di sicurezza. Questo evita che la chiave Grok sia utilizzabile da chiunque sulla LAN
+- **Ricerca con debounce**: la barra di ricerca del catalogo non invia più una richiesta a ogni tasto premuto; attende 350 ms di inattività
+- **Tipo `ScanSession`**: aggiunto lo stato `processing` (usato dalla coda) al tipo del backend, allineandolo al frontend
+- **Performance**: `index.html` viene letto una sola volta all'avvio invece che a ogni richiesta del fallback SPA
+
+### Removed
+
+- Rimossa la copia duplicata e obsoleta di `backend/` e del `Dockerfile` nella root del repository: non erano usati dal build (che punta ad `addon/`) e generavano confusione
+
 ## [0.1.13] - 2026-07-07
 
 ### Fixed

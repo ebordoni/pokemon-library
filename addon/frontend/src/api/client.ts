@@ -29,7 +29,8 @@ export const api = {
 
   getCard: (id: string) => apiClient.get<Card>(`/cards/${id}`),
 
-  deleteCard: (id: string) => apiClient.delete(`/cards/${id}`),
+  deleteCard: (id: string) =>
+    apiClient.delete<{ id: string; remainingQuantity: number }>(`/cards/${id}`),
 
   updateQuantity: (id: string, quantity: number) =>
     apiClient.patch<Card>(`/cards/${id}/quantity`, { quantity }),

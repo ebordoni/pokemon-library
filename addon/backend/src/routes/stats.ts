@@ -54,7 +54,7 @@ router.get("/", (_req: Request, res: Response) => {
 
   const topSets = db
     .prepare(
-      "SELECT set_name as setName, SUM(quantity) as count FROM cards GROUP BY set_id ORDER BY count DESC LIMIT 10",
+      "SELECT set_name as setName, SUM(quantity) as count FROM cards GROUP BY set_id, set_name ORDER BY count DESC LIMIT 10",
     )
     .all() as CollectionStats["topSets"];
 

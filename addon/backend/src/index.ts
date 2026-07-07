@@ -10,6 +10,20 @@ import scanRouter from "./routes/scan";
 import statsRouter from "./routes/stats";
 import { getCatalogStatus, seedCatalog } from "./services/catalog.service";
 
+// Resolve the app version from package.json (copied next to dist/ in the
+// production image and present in dev), avoiding a hard-coded value.
+function resolveVersion(): string {
+  try {
+    const pkg = JSON.parse(
+      fs.readFileSync(path.join(__dirname, "../package.json"), "utf-8"),
+    ) as { version?: string };
+    return pkg.version ?? "unknown";
+  } catch {
+    return "unknown";
+  }
+}
+const APP_VERSION = resolveVersion();
+
 const app = express();
 
 // ── Middleware ─────────────────────────────────────────────────────────────
@@ -37,27 +51,37 @@ app.use("/api/stats", statsRouter);
 app.get("/api/health", (_req: Request, res: Response) => {
   res.json({
     status: "ok",
-    version: "0.1.0",
+    version: APP_VERSION,
     timestamp: new Date().toISOString(),
   });
+});
+
+// Any unmatched /api/* route is a genuine 404 — do not let it fall through to
+// the SPA fallback below (which would return index.html with a 200 status).
+app.use("/api", (_req: Request, res: Response) => {
+  res.status(404).json({ error: "Not found" });
 });
 
 // ── Frontend static files (production / HA addon) ──────────────────────────
 const frontendDir = process.env.FRONTEND_DIR;
 if (frontendDir) {
   app.use(express.static(frontendDir));
+  // Read index.html once at startup instead of on every request.
+  const indexHtml = fs.readFileSync(
+    path.join(frontendDir, "index.html"),
+    "utf-8",
+  );
   // SPA fallback: inject the HA Ingress base path so the frontend can build
   // correct API URLs regardless of the ingress token.
-  const indexHtmlPath = path.join(frontendDir, "index.html");
   app.get("*", (req: Request, res: Response) => {
-    const ingressBase = (req.headers["x-ingress-path"] as string | undefined) ?? "";
-    let html = fs.readFileSync(indexHtmlPath, "utf-8");
-    if (ingressBase) {
-      html = html.replace(
-        "</head>",
-        `<script>window.__INGRESS_BASE__="${ingressBase}"</script></head>`,
-      );
-    }
+    const ingressBase =
+      (req.headers["x-ingress-path"] as string | undefined) ?? "";
+    const html = ingressBase
+      ? indexHtml.replace(
+          "</head>",
+          `<script>window.__INGRESS_BASE__="${ingressBase}"</script></head>`,
+        )
+      : indexHtml;
     res.type("html").send(html);
   });
 }
