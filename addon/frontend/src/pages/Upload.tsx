@@ -1,14 +1,15 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { api } from "../api/client";
 import CardTile from "../components/CardTile";
+import CameraCapture from "../components/CameraCapture";
 import { useScanStatus } from "../hooks/useScanStatus";
 import type { ScanStatusResponse } from "../types";
 
 type Stage = "idle" | "uploading" | "polling" | "done" | "error";
 
 export default function Upload() {
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const galleryInputRef = useRef<HTMLInputElement>(null);
+  const [showCamera, setShowCamera] = useState(false);
   const [stage, setStage] = useState<Stage>("idle");
   const [sessionId, setSessionId] = useState<number | null>(null);
   const [queuePos, setQueuePos] = useState<number>(0);
@@ -63,7 +64,7 @@ export default function Upload() {
     setErrorMsg(null);
     setIsDragging(false);
     setFinalResult(null);
-    if (fileInputRef.current) fileInputRef.current.value = "";
+    setShowCamera(false);
     if (galleryInputRef.current) galleryInputRef.current.value = "";
   }
 
@@ -94,21 +95,20 @@ export default function Upload() {
     <div className="max-w-md mx-auto px-4 pt-6">
       <h1 className="text-xl font-bold text-gray-900 mb-6">Aggiungi Carte</h1>
 
+      {/* Overlay fotocamera (getUserMedia) */}
+      {showCamera && (
+        <CameraCapture
+          onCapture={(file) => {
+            setShowCamera(false);
+            void handleFile(file);
+          }}
+          onClose={() => setShowCamera(false)}
+        />
+      )}
+
       {/* ── IDLE ─────────────────────────────────────────────────────── */}
       {stage === "idle" && (
         <>
-          {/* Input fotocamera (capture="environment") */}
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            capture="environment"
-            className="sr-only"
-            onChange={(e) => {
-              const file = e.target.files?.[0];
-              if (file) void handleFile(file);
-            }}
-          />
           {/* Input libreria foto (senza capture) */}
           <input
             ref={galleryInputRef}
@@ -147,7 +147,7 @@ export default function Upload() {
           <div className="flex gap-3 mt-4">
             {/* Fotocamera */}
             <button
-              onClick={() => fileInputRef.current?.click()}
+              onClick={() => setShowCamera(true)}
               className="flex-1 flex flex-col items-center gap-2 py-5 bg-pokemon-blue text-white rounded-2xl touch-manipulation active:scale-[0.97] transition-transform"
             >
               <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">

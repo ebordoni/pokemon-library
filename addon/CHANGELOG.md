@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.1.13] - 2026-07-07
+
+### Fixed
+
+- Su Android il pulsante **Fotocamera** apriva la galleria invece della camera: sostituito l'approccio `<input capture="environment">` (comportamento inconsistente nei WebView Android) con un overlay fullscreen basato su `getUserMedia`. Il nuovo componente `CameraCapture` accede direttamente alla fotocamera posteriore (`facingMode: environment`), mostra un'anteprima live e permette di scattare la foto con un pulsante. Funziona in modo coerente su iOS e Android
+
 ## [0.1.12] - 2026-07-07
 
 ### Added
