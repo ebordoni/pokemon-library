@@ -1,6 +1,6 @@
 # Pokemon Library — Specifiche Applicative
 
-> Documento di specifiche v0.1 — 2026-07-06
+> Documento di specifiche — allineato all'implementazione v0.1.15 (2026-07-07)
 
 ---
 
@@ -17,15 +17,15 @@ costruisce un catalogo personale navigabile.
 
 ### 2.1 Funzionalità Core (MVP)
 
-| ID  | Funzionalità                | Descrizione                                                                                                                                                                               |
-| --- | --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| F01 | **Upload scansione**        | L'utente carica una foto (JPEG/PNG/WEBP) contenente fino a 4 carte Pokémon.                                                                                                               |
-| F02 | **Identificazione AI**      | La foto viene inviata all'API Grok (xAI) con un prompt strutturato; il modello restituisce per ogni carta: nome, numero di serie, espansione, rarità.                                     |
-| F03 | **Recupero dati ufficiali** | Per ogni carta identificata l'app interroga la **PokéTCG API** (pokemontcg.io) e scarica immagine HD, tipo, HP, energia, attacchi, debolezze, rarità, valore di mercato (se disponibile). |
-| F04 | **Persistenza**             | Carta + metadati vengono salvati in un database SQLite locale. Le foto di scansione non vengono salvate.                                                                                  |
-| F05 | **Catalogo**                | Vista griglia/lista della collezione con ricerca full-text e filtri.                                                                                                                      |
-| F06 | **Tagging automatico**      | Ogni carta viene etichettata automaticamente con: tipo Pokémon, tipo energia, categoria (Base / Allenatore / Energia / Pokémon EX/GX/V/VMAX/VSTAR), espansione, rarità.                   |
-| F07 | **Rilevamento duplicati**   | All'inserimento il sistema controlla se la carta (stesso ID PokéTCG) è già presente e la marca come duplicato con conteggio copie.                                                        |
+| ID  | Funzionalità                | Descrizione                                                                                                                                                                                                                                                                                         |
+| --- | --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| F01 | **Upload scansione**        | L'utente carica una foto (JPEG/PNG/WEBP) contenente fino a 4 carte Pokémon.                                                                                                                                                                                                                         |
+| F02 | **Identificazione AI**      | La foto viene inviata all'API Grok (xAI) con un prompt strutturato; il modello restituisce per ogni carta: nome, numero di serie, espansione, rarità.                                                                                                                                               |
+| F03 | **Recupero dati ufficiali** | Per ogni carta identificata l'app cerca nel **catalogo locale** (tabella SQLite `card_catalog`) popolato al primo avvio dal dataset **PokemonTCG/pokemon-tcg-data** (GitHub, ~20k carte EN): immagine, tipo, HP, energia, attacchi, debolezze, rarità. Nessuna chiamata alla PokéTCG API a runtime. |
+| F04 | **Persistenza**             | Carta + metadati vengono salvati in un database SQLite locale. Le foto di scansione non vengono salvate.                                                                                                                                                                                            |
+| F05 | **Catalogo**                | Vista griglia/lista della collezione con ricerca full-text e filtri.                                                                                                                                                                                                                                |
+| F06 | **Tagging automatico**      | Ogni carta viene etichettata automaticamente con: tipo Pokémon, tipo energia, categoria (Base / Allenatore / Energia / Pokémon EX/GX/V/VMAX/VSTAR), espansione, rarità.                                                                                                                             |
+| F07 | **Rilevamento duplicati**   | All'inserimento il sistema controlla se la carta (stesso ID PokéTCG) è già presente e la marca come duplicato con conteggio copie.                                                                                                                                                                  |
 
 ### 2.2 Funzionalità Future (Post-MVP)
 
@@ -71,9 +71,9 @@ costruisce un catalogo personale navigabile.
 ### 3.1 Comunicazioni Esterne
 
 ```
-Backend ──► xAI Grok API          (identificazione carte da immagine)
-        ──► PokéTCG API v2        (dati e immagini ufficiali)
-        ──► (futuro) TCGPlayer API (prezzi)
+Backend ──► xAI Grok API                       (identificazione carte da immagine — runtime)
+        ──► GitHub PokemonTCG/pokemon-tcg-data  (catalogo ~20k carte EN — solo al primo avvio/seeding)
+        ──► (futuro) TCGPlayer API              (prezzi)
 ```
 
 ---
@@ -82,27 +82,28 @@ Backend ──► xAI Grok API          (identificazione carte da immagine)
 
 ### Frontend
 
-| Componente       | Tecnologia                   |
-| ---------------- | ---------------------------- |
-| Framework        | **React 18** + TypeScript    |
-| Build tool       | **Vite**                     |
-| UI Library       | **shadcn/ui** + Tailwind CSS |
-| State management | **Zustand**                  |
-| Routing          | **React Router v6**          |
-| HTTP client      | **Axios** / Fetch API        |
-| Upload immagini  | **react-dropzone**           |
+| Componente       | Tecnologia                          |
+| ---------------- | ----------------------------------- |
+| Framework        | **React 18** + TypeScript           |
+| Build tool       | **Vite 5**                          |
+| UI               | **Tailwind CSS 3** (no shadcn/ui)   |
+| State management | **Zustand 4**                       |
+| Routing          | **React Router v6** (`HashRouter`)  |
+| HTTP client      | **Axios**                           |
+| Grafici          | **Recharts** (lazy-loaded)          |
+| Upload immagini  | Drag & drop nativo + `getUserMedia` |
 
 ### Backend
 
-| Componente      | Tecnologia                                     |
-| --------------- | ---------------------------------------------- |
-| Runtime         | **Node.js 20**                                 |
-| Framework       | **Express 5**                                  |
-| ORM             | **better-sqlite3** (sync, ideale per addon HA) |
-| Migrazioni DB   | **db-migrate**                                 |
-| Validazione     | **Zod**                                        |
-| Upload handling | **Multer**                                     |
-| HTTP client     | **node-fetch** / **axios**                     |
+| Componente        | Tecnologia                                   |
+| ----------------- | -------------------------------------------- |
+| Runtime           | **Node.js 24**                               |
+| Framework         | **Express 4**                                |
+| Database          | **`node:sqlite`** (`DatabaseSync`, built-in) |
+| Schema/Migrazioni | Schema SQL inline con `schema_version`       |
+| Validazione       | **Zod**                                      |
+| Upload handling   | **Multer** (in-memory)                       |
+| HTTP client       | **axios**                                    |
 
 ### Infrastruttura
 
@@ -121,61 +122,57 @@ Backend ──► xAI Grok API          (identificazione carte da immagine)
 pokemon-library/
 ├── README.md
 ├── SPECS.md
+├── repository.json                 # Manifest repository HA
+├── docker-compose.yml              # Dev locale (usa addon/backend + addon/frontend)
 │
-├── addon/                          # Configurazione Home Assistant Addon
-│   ├── config.yaml                 # Manifest addon HA
-│   ├── build.yaml                  # Build config multi-arch
-│   └── translations/
-│       └── en.yaml
-│
-├── backend/                        # Node.js API Server
-│   ├── Dockerfile
-│   ├── package.json
-│   ├── src/
-│   │   ├── index.ts                # Entry point Express
-│   │   ├── db/
-│   │   │   ├── schema.ts           # Definizioni tabelle SQLite
-│   │   │   └── migrations/
-│   │   ├── routes/
-│   │   │   ├── cards.ts            # CRUD carte
-│   │   │   ├── scan.ts             # Upload + identificazione AI
-│   │   │   └── stats.ts            # Statistiche collezione
-│   │   ├── services/
-│   │   │   ├── grok.service.ts     # Integrazione xAI Grok API
-│   │   │   ├── pokemontcg.service.ts # Integrazione PokéTCG API
-│   │   │   └── duplicate.service.ts  # Rilevamento duplicati
-│   │   └── types/
-│   │       └── index.ts
-│   └── tsconfig.json
-│
-├── frontend/                       # React App
-│   ├── Dockerfile
-│   ├── package.json
-│   ├── vite.config.ts
-│   ├── src/
-│   │   ├── main.tsx
-│   │   ├── App.tsx
-│   │   ├── pages/
-│   │   │   ├── Catalog.tsx         # Pagina principale catalogo
-│   │   │   ├── Upload.tsx          # Pagina upload scansione
-│   │   │   ├── CardDetail.tsx      # Dettaglio singola carta
-│   │   │   └── Stats.tsx           # Statistiche (post-MVP)
-│   │   ├── components/
-│   │   │   ├── CardGrid.tsx        # Griglia carte
-│   │   │   ├── CardTile.tsx        # Tile singola carta
-│   │   │   ├── FilterPanel.tsx     # Pannello filtri/tag
-│   │   │   ├── UploadZone.tsx      # Drop zone upload
-│   │   │   ├── ScanResult.tsx      # Preview risultato scansione
-│   │   │   └── DuplicateBadge.tsx  # Badge duplicato
-│   │   ├── store/
-│   │   │   └── useCollectionStore.ts
-│   │   ├── api/
-│   │   │   └── client.ts
-│   │   └── types/
-│   │       └── index.ts
-│   └── tsconfig.json
-│
-└── docker-compose.yml              # Dev locale
+└── addon/                          # Home Assistant Addon (codebase attiva)
+    ├── config.yaml                 # Manifest addon HA
+    ├── build.yaml                  # Build config multi-arch
+    ├── Dockerfile                  # Build multi-stage (frontend + backend)
+    ├── icon.png
+    ├── CHANGELOG.md
+    ├── translations/               # en.yaml, it.yaml
+    │
+    ├── backend/                    # Node.js API Server (Express + TypeScript)
+    │   ├── Dockerfile.dev
+    │   ├── package.json
+    │   ├── tsconfig.json
+    │   └── src/
+    │       ├── index.ts            # Entry point Express, static SPA, bootstrap
+    │       ├── config.ts           # Config da env / /data/options.json
+    │       ├── db/
+    │       │   ├── schema.ts        # Schema SQLite (cards, scan_sessions, card_catalog)
+    │       │   └── helpers.ts       # row → Card / ScanSession
+    │       ├── routes/
+    │       │   ├── cards.ts         # CRUD carte + quantità
+    │       │   ├── catalog.ts       # Stato/aggiornamento catalogo locale
+    │       │   ├── scan.ts          # Upload + coda scansione
+    │       │   └── stats.ts         # Statistiche collezione
+    │       ├── services/
+    │       │   ├── grok.service.ts       # Integrazione xAI Grok Vision
+    │       │   ├── catalog.service.ts    # Seeding + searchCatalog (dataset GitHub)
+    │       │   ├── pokemontcg.service.ts # Wrapper legacy → catalog.service
+    │       │   └── duplicate.service.ts  # upsert / decrement duplicati
+    │       ├── queue/
+    │       │   └── scanQueue.ts      # Coda FIFO delle scansioni
+    │       └── types/
+    │           └── index.ts
+    │
+    └── frontend/                   # React App (Vite + Tailwind)
+        ├── Dockerfile.dev
+        ├── package.json
+        ├── vite.config.ts
+        ├── tailwind.config.js
+        └── src/
+            ├── main.tsx
+            ├── App.tsx             # HashRouter + lazy loading
+            ├── pages/              # Catalog, Upload, CardDetail, Stats
+            ├── components/         # CardGrid, CardTile, FilterDrawer, CameraCapture, …
+            ├── hooks/              # useScanStatus (polling)
+            ├── store/              # useCollectionStore (Zustand)
+            ├── api/                # client.ts (Axios)
+            └── types/
+                └── index.ts
 ```
 
 ---
@@ -232,7 +229,7 @@ pokemon-library/
        Return JSON array with: {name, set, number, language}"
    d. Parsa risposta JSON dal modello
    e. Per ogni carta identificata:
-      - Cerca su PokéTCG API: GET /v2/cards?q=name:{name} number:{number} set.name:{set}
+      - Cerca nel catalogo locale SQLite (`searchCatalog`): numero normalizzato + fallback su set / HP / solo nome
       - Seleziona il match migliore
       - Controlla duplicati in DB
       - Upsert su tabella cards (quantity++)
@@ -251,40 +248,47 @@ Il repository dovrà essere aggiunto come **repository di addon personalizzato**
 
 ```yaml
 name: "Pokemon Library"
-description: "Catalogo personale carte Pokémon con identificazione AI"
-version: "0.1.0"
+description: "Personal Pokémon TCG collection catalog with AI card identification"
+version: "0.1.15"
 slug: "pokemon_library"
 init: false
 arch:
   - aarch64
   - amd64
+startup: services
+boot: auto
 ingress: true
 ingress_port: 8099
+ingress_entry: /
 panel_icon: "mdi:cards"
 panel_title: "Pokemon Library"
 options:
   grok_api_key: ""
-  pokemontcg_api_key: ""
 schema:
-  grok_api_key: str
-  pokemontcg_api_key: str
+  grok_api_key: password
 map:
   - data:rw
+
+# Nota: nessuna sezione `ports` — l'addon è raggiungibile solo via Ingress HA.
+# Nessuna pokemontcg_api_key: il catalogo è locale (dataset GitHub).
 ```
 
 ---
 
 ## 9. API Backend (Endpoints)
 
-| Metodo   | Path                      | Descrizione                          |
-| -------- | ------------------------- | ------------------------------------ |
-| `POST`   | `/api/scan`               | Upload foto + identificazione AI     |
-| `GET`    | `/api/cards`              | Lista carte (con filtri/paginazione) |
-| `GET`    | `/api/cards/:id`          | Dettaglio singola carta              |
-| `DELETE` | `/api/cards/:id`          | Rimuovi carta dalla collezione       |
-| `PATCH`  | `/api/cards/:id/quantity` | Aggiorna quantità manualmente        |
-| `GET`    | `/api/stats`              | Statistiche collezione               |
-| `GET`    | `/api/health`             | Health check                         |
+| Metodo   | Path                      | Descrizione                                               |
+| -------- | ------------------------- | --------------------------------------------------------- |
+| `POST`   | `/api/scan`               | Upload foto → accoda scansione (202, ritorna `sessionId`) |
+| `GET`    | `/api/scan/:id`           | Polling stato scansione                                   |
+| `GET`    | `/api/cards`              | Lista carte (con filtri/paginazione)                      |
+| `GET`    | `/api/cards/:id`          | Dettaglio singola carta                                   |
+| `DELETE` | `/api/cards/:id`          | Rimuovi una copia (elimina la riga quando arriva a 0)     |
+| `PATCH`  | `/api/cards/:id/quantity` | Aggiorna quantità manualmente                             |
+| `GET`    | `/api/stats`              | Statistiche collezione                                    |
+| `GET`    | `/api/catalog`            | Stato catalogo locale (conteggio, seeding)                |
+| `POST`   | `/api/catalog/update`     | Avvia re-seeding del catalogo in background               |
+| `GET`    | `/api/health`             | Health check                                              |
 
 ### Parametri GET `/api/cards`
 
@@ -300,7 +304,7 @@ map:
 
 ## 10. Considerazioni Sicurezza
 
-- Le API key (Grok, PokéTCG) sono gestite esclusivamente come **opzioni addon HA**, mai esposte al frontend.
+- La API key Grok è gestita esclusivamente come **opzione addon HA**, mai esposta al frontend.
 - Tutte le chiamate alle API esterne avvengono **solo nel backend**.
 - I file immagine caricati dall'utente vengono processati **in memoria** e mai scritti su disco.
 - Validazione input con **Zod** su tutti gli endpoint.
@@ -343,11 +347,11 @@ Sprint 4 — Integrazione & QA
 
 ## 12. Dipendenze Esterne
 
-| Servizio          | URL                          | Note                                                          |
-| ----------------- | ---------------------------- | ------------------------------------------------------------- |
-| xAI Grok API      | https://api.x.ai/v1          | API key richiesta — modello `grok-2-vision-latest`            |
-| PokéTCG API v2    | https://api.pokemontcg.io/v2 | Gratuita (rate limit), API key opzionale per limiti aumentati |
-| Docker Hub / GHCR | ghcr.io                      | Registry per le immagini Docker del addon                     |
+| Servizio                    | URL                                                           | Note                                                                              |
+| --------------------------- | ------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| xAI Grok API                | https://api.x.ai/v1                                           | API key richiesta — modello `grok-4.3` (vision). Solo a runtime per la scansione. |
+| PokemonTCG/pokemon-tcg-data | https://raw.githubusercontent.com/PokemonTCG/pokemon-tcg-data | Dataset carte EN scaricato solo al primo avvio (seeding del catalogo locale).     |
+| Docker Hub / GHCR           | ghcr.io                                                       | Registry per le immagini Docker dell'addon                                        |
 
 ---
 

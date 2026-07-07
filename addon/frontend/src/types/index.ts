@@ -88,7 +88,8 @@ export interface CardFilters {
 
 export interface PaginatedCards {
   data: Card[];
-  total: number;
+  total: number; // number of distinct cards matching the filters
+  totalQuantity: number; // sum of copies (quantity) matching the filters
   page: number;
   limit: number;
   totalPages: number;

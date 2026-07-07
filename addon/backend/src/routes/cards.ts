@@ -40,9 +40,7 @@ router.get("/", (req: Request, res: Response) => {
   const params: DBParam[] = [];
 
   if (q) {
-    conditions.push(
-      "(name LIKE ? OR set_name LIKE ? OR number = ?)",
-    );
+    conditions.push("(name LIKE ? OR set_name LIKE ? OR number = ?)");
     params.push(`%${q}%`, `%${q}%`, q);
   }
   if (type) {
@@ -75,9 +73,11 @@ router.get("/", (req: Request, res: Response) => {
       ? stmt.all(...([...params, ...extra] as any[]))
       : stmt.get(...(params as any[]));
 
-  const { count } = run(
-    db.prepare(`SELECT COUNT(*) as count FROM cards ${where}`),
-  ) as { count: number };
+  const { count, copies } = run(
+    db.prepare(
+      `SELECT COUNT(*) as count, COALESCE(SUM(quantity), 0) as copies FROM cards ${where}`,
+    ),
+  ) as { count: number; copies: number };
 
   const rows = db
     .prepare(`SELECT * FROM cards ${where} ORDER BY name ASC LIMIT ? OFFSET ?`)
@@ -87,6 +87,7 @@ router.get("/", (req: Request, res: Response) => {
   const result: PaginatedCards = {
     data: rows.map(rowToCard),
     total: count,
+    totalQuantity: copies,
     page,
     limit,
     totalPages: Math.ceil(count / limit),

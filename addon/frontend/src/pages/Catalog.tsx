@@ -8,6 +8,7 @@ export default function Catalog() {
   const {
     cards,
     total,
+    totalQuantity,
     isLoading,
     isLoadingMore,
     totalPages,
@@ -55,6 +56,8 @@ export default function Catalog() {
           {total > 0 && (
             <p className="text-sm text-gray-500">
               {total.toLocaleString()} {total === 1 ? "carta" : "carte"}
+              {totalQuantity > total &&
+                ` · ${totalQuantity.toLocaleString()} copie`}
             </p>
           )}
         </div>

@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.1.15] - 2026-07-07
+
+### Fixed
+
+- **Identificazione carte con numeri speciali**: `searchCatalog` confrontava il numero con un semplice `= number` in SQL, fallendo per prints speciali come `TG05`, `GG01`, `SWSH001`, `H1`. Ora tutti i candidati per un nome vengono caricati una volta e confrontati in JS su un numero in forma canonica (prefisso lettera in minuscolo, zeri iniziali rimossi in ogni gruppo di cifre), così `085`↔`85`, `TG05`↔`tg5`, `SWSH001`↔`swsh1` combaciano
+
+### Added
+
+- **Conteggio copie nel catalogo**: l'endpoint `GET /api/cards` restituisce ora anche `totalQuantity` (somma delle copie) oltre a `total` (carte uniche). L'intestazione della collezione mostra "N carte · M copie" quando sono presenti duplicati
+
+### Changed
+
+- **Documentazione**: `SPECS.md` allineato all'implementazione reale — catalogo locale offline (dataset GitHub) invece della PokéTCG API a runtime, stack corretto (`node:sqlite`, Express 4, Node 24, Tailwind senza shadcn/ui), struttura repository sotto `addon/`, `config.yaml` senza `ports` e con la sola `grok_api_key`, modello Grok `grok-4.3`, endpoint completi
+
 ## [0.1.14] - 2026-07-07
 
 ### Fixed

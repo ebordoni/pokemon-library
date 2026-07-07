@@ -226,9 +226,28 @@ export async function seedCatalog(): Promise<void> {
 }
 
 /**
+ * Canonical form of a card number so that values printed/read in different
+ * styles compare equal. It:
+ *  - drops the "/TOTAL" suffix ("085/132" → "085")
+ *  - lowercases any letter prefix ("TG05" → "tg05", "SWSH001" → "swsh001")
+ *  - strips leading zeros inside every digit group ("085" → "85",
+ *    "tg05" → "tg5", "swsh001" → "swsh1", "h1" → "h1")
+ */
+function normalizeNumber(raw: string): string {
+  const left = raw.includes("/") ? raw.split("/")[0]! : raw;
+  return left
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, "")
+    .replace(/0*(\d+)/g, "$1");
+}
+
+/**
  * Searches the local catalog for a card using cascading fallback strategies.
- * Numbers are normalised (leading zeros stripped, "/TOTAL" suffix removed) before
- * comparison so that Grok's "085" matches the catalog's "85".
+ * All candidates for a given name are loaded once (the name column is indexed
+ * and even common names map to a bounded set of rows) and matched in JS, so
+ * numbers are compared in canonical form — this handles special prints such as
+ * "TG05", "GG01", "SWSH001" and "H1" that plain SQL equality would miss.
  * When hp is supplied it is used as a tiebreaker on name-only fallbacks.
  */
 export function searchCatalog(
@@ -239,60 +258,45 @@ export function searchCatalog(
 ): CatalogRow | null {
   const db = getDb();
 
-  // Normalise: strip "/TOTAL" suffix then leading zeros ("085/132" → "85")
-  const normNum = number
-    ? (number.includes("/") ? number.split("/")[0]! : number).replace(
-        /^0+/,
-        "",
-      ) || "0"
-    : undefined;
+  const rows = db
+    .prepare("SELECT * FROM card_catalog WHERE LOWER(name) = LOWER(?)")
+    .all(name) as unknown as CatalogRow[];
+  if (!rows.length) return null;
 
-  // 1. Exact: name + set + normalised number
-  if (set && normNum) {
-    const row = db
-      .prepare(
-        "SELECT * FROM card_catalog WHERE LOWER(name) = LOWER(?) AND number = ? AND LOWER(set_name) LIKE LOWER(?) LIMIT 1",
-      )
-      .get(name, normNum, `%${set}%`) as unknown as CatalogRow | undefined;
+  const normQ = number ? normalizeNumber(number) : undefined;
+  const setLc = set?.toLowerCase();
+
+  const matchesSet = (r: CatalogRow): boolean =>
+    setLc !== undefined && r.set_name.toLowerCase().includes(setLc);
+  const matchesNumber = (r: CatalogRow): boolean =>
+    normQ !== undefined && normalizeNumber(r.number) === normQ;
+
+  // 1. set + number
+  if (setLc !== undefined && normQ !== undefined) {
+    const row = rows.find((r) => matchesSet(r) && matchesNumber(r));
     if (row) return row;
   }
 
-  // 2. Name + normalised number only
-  if (normNum) {
-    const row = db
-      .prepare(
-        "SELECT * FROM card_catalog WHERE LOWER(name) = LOWER(?) AND number = ? LIMIT 1",
-      )
-      .get(name, normNum) as unknown as CatalogRow | undefined;
+  // 2. number only
+  if (normQ !== undefined) {
+    const row = rows.find(matchesNumber);
     if (row) return row;
   }
 
-  // 3. Name + set only
-  if (set) {
-    const row = db
-      .prepare(
-        "SELECT * FROM card_catalog WHERE LOWER(name) = LOWER(?) AND LOWER(set_name) LIKE LOWER(?) LIMIT 1",
-      )
-      .get(name, `%${set}%`) as unknown as CatalogRow | undefined;
+  // 3. set only
+  if (setLc !== undefined) {
+    const row = rows.find(matchesSet);
     if (row) return row;
   }
 
-  // 4. Name + HP — narrows down to the right print when number/set are unknown
+  // 4. HP — narrows down the right print when number/set are unknown
   if (hp !== undefined) {
-    const row = db
-      .prepare(
-        "SELECT * FROM card_catalog WHERE LOWER(name) = LOWER(?) AND hp = ? LIMIT 1",
-      )
-      .get(name, hp) as unknown as CatalogRow | undefined;
+    const row = rows.find((r) => r.hp === hp);
     if (row) return row;
   }
 
-  // 5. Name only (broad last-resort fallback)
-  const row = db
-    .prepare("SELECT * FROM card_catalog WHERE LOWER(name) = LOWER(?) LIMIT 1")
-    .get(name) as unknown as CatalogRow | undefined;
-
-  return row ?? null;
+  // 5. name only (broad last-resort fallback)
+  return rows[0] ?? null;
 }
 
 /**

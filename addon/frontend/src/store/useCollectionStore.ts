@@ -5,6 +5,7 @@ import type { Card, CardFilters, PaginatedCards } from "../types";
 interface CollectionState {
   cards: Card[];
   total: number;
+  totalQuantity: number;
   page: number;
   totalPages: number;
   filters: CardFilters;
@@ -21,6 +22,7 @@ interface CollectionState {
 export const useCollectionStore = create<CollectionState>((set, get) => ({
   cards: [],
   total: 0,
+  totalQuantity: 0,
   page: 1,
   totalPages: 1,
   filters: { page: 1, limit: 24 },
@@ -37,6 +39,7 @@ export const useCollectionStore = create<CollectionState>((set, get) => ({
       set({
         cards: data.data ?? [],
         total: data.total ?? 0,
+        totalQuantity: data.totalQuantity ?? 0,
         page: data.page ?? 1,
         totalPages: data.totalPages ?? 1,
         filters: activeFilters,
@@ -60,6 +63,7 @@ export const useCollectionStore = create<CollectionState>((set, get) => ({
       set({
         cards: [...cards, ...(data.data ?? [])],
         total: data.total ?? 0,
+        totalQuantity: data.totalQuantity ?? 0,
         page: data.page ?? 1,
         totalPages: data.totalPages ?? 1,
         filters: { ...filters, page: nextPage },
