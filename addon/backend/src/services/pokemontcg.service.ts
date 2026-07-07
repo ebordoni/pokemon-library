@@ -16,15 +16,16 @@ import {
 export type PokemonTCGCard = CatalogRow;
 
 /**
- * Searches the local catalog for a card by name, set and number.
+ * Searches the local catalog for a card by name, set, number and optionally HP.
  * Returns null if the catalog is empty or no match is found.
  */
 export async function searchCard(
   name: string,
   set?: string,
   number?: string,
+  hp?: number,
 ): Promise<PokemonTCGCard | null> {
-  return searchCatalog(name, set, number);
+  return searchCatalog(name, set, number, hp);
 }
 
 /**

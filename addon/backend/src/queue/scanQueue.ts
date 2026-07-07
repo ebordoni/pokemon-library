@@ -93,13 +93,9 @@ class ScanQueue {
       const savedIds: string[] = [];
 
       for (const id of identifications) {
-        const number = id.number.includes("/")
-          ? id.number.split("/")[0]!
-          : id.number;
-
         let apiCard = null;
         try {
-          apiCard = await searchCard(id.name, id.set, number);
+          apiCard = await searchCard(id.name, id.set, id.number, id.hp);
         } catch (e) {
           console.warn(
             `[queue] Catalog lookup failed for "${id.name}":`,

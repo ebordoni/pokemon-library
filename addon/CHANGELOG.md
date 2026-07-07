@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.11] - 2026-07-07
+
+### Fixed
+
+- Identificazione errata della versione della carta: il numero restituito da Grok (es. `"085"`) non corrispondeva al formato del catalogo (`"85"`) perché gli zeri iniziali non venivano normalizzati. La funzione `searchCatalog` ora normalizza il numero prima di ogni confronto (rimuove zeri iniziali e la parte `/TOTALE`)
+- Aggiunto HP come campo di disambiguazione: il prompt Grok ora richiede esplicitamente il valore HP e il fallback di ricerca usa HP per scegliere la versione corretta quando numero/set non bastano
+- Prompt Grok migliorato: istruzione esplicita a restituire sempre nome e set in inglese (anche per carte in altre lingue) e a normalizzare il numero della carta
+
 ## [0.1.10] - 2026-07-07
 
 ### Fixed

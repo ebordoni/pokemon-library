@@ -9,6 +9,7 @@ export interface GrokCardIdentification {
   set: string;
   number: string;
   language?: string;
+  hp?: number;
 }
 
 interface GrokResponse {
@@ -22,13 +23,19 @@ interface GrokResponse {
 const IDENTIFICATION_PROMPT = `
 You are an expert Pokémon TCG card identifier.
 Analyze this image and identify every Pokémon Trading Card Game card visible.
+
+IMPORTANT rules:
+- The card may be printed in any language; ALWAYS return the English card name and English set name.
+- For the card number: read the digits printed in the BOTTOM-RIGHT corner (format NN/TTT). Return ONLY the left part (before the slash), with NO leading zeros. Example: "085/132" → "85".
+- Return the HP value printed on the card (the number next to "HP" at the top).
+
 Return ONLY a valid JSON array (no markdown, no explanation) with this structure:
 [
   {
-    "name": "card name in English",
-    "set": "set/expansion name",
-    "number": "card number (e.g. 4/102)",
-    "language": "EN"
+    "name": "English card name",
+    "set": "English set/expansion name",
+    "number": "card number without leading zeros (e.g. '85' not '085')",
+    "hp": 130
   }
 ]
 If no cards are found, return an empty array: []

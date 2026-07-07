@@ -219,31 +219,43 @@ export async function seedCatalog(): Promise<void> {
 
 /**
  * Searches the local catalog for a card using cascading fallback strategies.
+ * Numbers are normalised (leading zeros stripped, "/TOTAL" suffix removed) before
+ * comparison so that Grok's "085" matches the catalog's "85".
+ * When hp is supplied it is used as a tiebreaker on name-only fallbacks.
  */
 export function searchCatalog(
   name: string,
   set?: string,
   number?: string,
+  hp?: number,
 ): CatalogRow | null {
   const db = getDb();
 
-  // 1. Exact: name + set + number
-  if (set && number) {
+  // Normalise: strip "/TOTAL" suffix then leading zeros ("085/132" → "85")
+  const normNum = number
+    ? (number.includes("/") ? number.split("/")[0]! : number).replace(
+        /^0+/,
+        "",
+      ) || "0"
+    : undefined;
+
+  // 1. Exact: name + set + normalised number
+  if (set && normNum) {
     const row = db
       .prepare(
         "SELECT * FROM card_catalog WHERE LOWER(name) = LOWER(?) AND number = ? AND LOWER(set_name) LIKE LOWER(?) LIMIT 1",
       )
-      .get(name, number, `%${set}%`) as unknown as CatalogRow | undefined;
+      .get(name, normNum, `%${set}%`) as unknown as CatalogRow | undefined;
     if (row) return row;
   }
 
-  // 2. Name + number only
-  if (number) {
+  // 2. Name + normalised number only
+  if (normNum) {
     const row = db
       .prepare(
         "SELECT * FROM card_catalog WHERE LOWER(name) = LOWER(?) AND number = ? LIMIT 1",
       )
-      .get(name, number) as unknown as CatalogRow | undefined;
+      .get(name, normNum) as unknown as CatalogRow | undefined;
     if (row) return row;
   }
 
@@ -257,7 +269,17 @@ export function searchCatalog(
     if (row) return row;
   }
 
-  // 4. Name only (broad fallback)
+  // 4. Name + HP — narrows down to the right print when number/set are unknown
+  if (hp !== undefined) {
+    const row = db
+      .prepare(
+        "SELECT * FROM card_catalog WHERE LOWER(name) = LOWER(?) AND hp = ? LIMIT 1",
+      )
+      .get(name, hp) as unknown as CatalogRow | undefined;
+    if (row) return row;
+  }
+
+  // 5. Name only (broad last-resort fallback)
   const row = db
     .prepare("SELECT * FROM card_catalog WHERE LOWER(name) = LOWER(?) LIMIT 1")
     .get(name) as unknown as CatalogRow | undefined;
