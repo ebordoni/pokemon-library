@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.2.8] - 2026-07-07
+
+### Fixed
+
+- **Build Docker frontend fallita (0.2.7)**: mancavano gli import di tipi e componenti, causando errori `TS2304`. Aggiunti gli import mancanti in `api/client.ts` (`ManualLookupResponse`, `ManualAddResponse`), `pages/Stats.tsx` (`CatalogManager`) e `pages/Upload.tsx` (`ManualEntry`)
+
 ## [0.2.7] - 2026-07-07
 
 ### Fixed

@@ -4,6 +4,8 @@ import type {
   CardFilters,
   CatalogStatus,
   CollectionStats,
+  ManualAddResponse,
+  ManualLookupResponse,
   PaginatedCards,
   ScanConfirmResponse,
   ScanDecision,

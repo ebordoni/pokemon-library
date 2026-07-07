@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { api } from "../api/client";
 import CameraCapture from "../components/CameraCapture";
+import ManualEntry from "../components/ManualEntry";
 import ScanReview from "../components/ScanReview";
 import ThemeToggle from "../components/ThemeToggle";
 import { useScanStatus } from "../hooks/useScanStatus";

@@ -12,6 +12,7 @@ import {
   YAxis,
 } from "recharts";
 import { api } from "../api/client";
+import CatalogManager from "../components/CatalogManager";
 import ThemeToggle from "../components/ThemeToggle";
 import type { CollectionStats } from "../types";
 
