@@ -1,6 +1,6 @@
 name: "Pokemon Library"
 description: "Personal Pokémon TCG collection catalog with AI card identification"
-version: "0.3.1"
+version: "0.3.2"
 slug: "pokemon_library"
 init: false
 arch:

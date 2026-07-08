@@ -2,7 +2,6 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { api } from "../api/client";
 import CameraCapture from "../components/CameraCapture";
 import ManualEntry from "../components/ManualEntry";
-import NumberScanCapture from "../components/NumberScanCapture";
 import ScanReview from "../components/ScanReview";
 import ThemeToggle from "../components/ThemeToggle";
 import { useScanStatus } from "../hooks/useScanStatus";
@@ -14,11 +13,6 @@ export default function Upload() {
   const galleryInputRef = useRef<HTMLInputElement>(null);
   const [showCamera, setShowCamera] = useState(false);
   const [showManual, setShowManual] = useState(false);
-  const [showNumberScan, setShowNumberScan] = useState(false);
-  const [ocrPrefill, setOcrPrefill] = useState<{
-    set: string;
-    number: string;
-  } | null>(null);
   const [stage, setStage] = useState<Stage>("idle");
   const [sessionId, setSessionId] = useState<number | null>(null);
   const [queuePos, setQueuePos] = useState<number>(0);
@@ -223,37 +217,10 @@ export default function Upload() {
             <div className="flex-1 h-px bg-gray-200 dark:bg-gray-700" />
           </div>
 
-          {/* Scansiona numero (OCR locale) — legge il numero stampato e
-              precompila l'inserimento manuale, senza AI. */}
-          <button
-            onClick={() => setShowNumberScan(true)}
-            className="w-full flex items-center justify-center gap-2 py-3 mb-3 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200 rounded-2xl touch-manipulation active:scale-[0.99] transition-transform"
-          >
-            <svg
-              className="w-5 h-5 text-pokemon-yellow"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={1.5}
-                d="M3 7V5a2 2 0 012-2h2M17 3h2a2 2 0 012 2v2M21 17v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2M7 12h10"
-              />
-            </svg>
-            <span className="text-sm font-semibold">
-              Scansiona numero (OCR)
-            </span>
-          </button>
-
           {/* Inserimento manuale (senza scansione) — apre un modale ancorato
               in alto, così la tastiera del telefono non copre i campi. */}
           <button
-            onClick={() => {
-              setOcrPrefill(null);
-              setShowManual(true);
-            }}
+            onClick={() => setShowManual(true)}
             className="w-full flex items-center justify-center gap-2 py-3 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200 rounded-2xl touch-manipulation active:scale-[0.99] transition-transform"
           >
             <svg
@@ -276,30 +243,8 @@ export default function Upload() {
         </>
       )}
 
-      {/* Overlay OCR "scansiona numero" */}
-      {showNumberScan && (
-        <NumberScanCapture
-          onClose={() => setShowNumberScan(false)}
-          onResult={({ set, number }) => {
-            setShowNumberScan(false);
-            setOcrPrefill({ set, number });
-            setShowManual(true);
-          }}
-        />
-      )}
-
-      {/* Modale inserimento manuale (eventualmente precompilato dall'OCR) */}
-      {showManual && (
-        <ManualEntry
-          onClose={() => {
-            setShowManual(false);
-            setOcrPrefill(null);
-          }}
-          initialSet={ocrPrefill?.set}
-          initialNumber={ocrPrefill?.number}
-          autoSearch={ocrPrefill !== null}
-        />
-      )}
+      {/* Modale inserimento manuale */}
+      {showManual && <ManualEntry onClose={() => setShowManual(false)} />}
 
       {/* ── UPLOADING ────────────────────────────────────────────────── */}
       {stage === "uploading" && (

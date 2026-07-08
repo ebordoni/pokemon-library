@@ -8,38 +8,6 @@ interface Props {
   onAdded?: () => void;
   /** When provided, renders as a top-anchored modal with a close button. */
   onClose?: () => void;
-  /** Pre-fill the set code (e.g. from OCR). */
-  initialSet?: string;
-  /** Pre-fill the card number (e.g. "126/167" or "TG05", from OCR). */
-  initialNumber?: string;
-  /** Run the lookup automatically on mount when set + number are present. */
-  autoSearch?: boolean;
-}
-
-/** Splits an incoming number string into the component form fields. */
-function splitNumber(n?: string): {
-  num: string;
-  total: string;
-  special: boolean;
-  specialNum: string;
-} {
-  const t = (n ?? "").trim();
-  if (!t) return { num: "", total: "", special: false, specialNum: "" };
-  if (/[a-zA-Z]/.test(t)) {
-    return {
-      num: "",
-      total: "",
-      special: true,
-      specialNum: t.toUpperCase().replace(/\s+/g, ""),
-    };
-  }
-  const [a, b] = t.split("/");
-  return {
-    num: (a ?? "").replace(/\D/g, ""),
-    total: (b ?? "").replace(/\D/g, ""),
-    special: false,
-    specialNum: "",
-  };
 }
 
 type Status =
@@ -57,32 +25,24 @@ function extractError(err: unknown, fallback: string): string {
   );
 }
 
-export default function ManualEntry({
-  onAdded,
-  onClose,
-  initialSet,
-  initialNumber,
-  autoSearch,
-}: Props) {
+export default function ManualEntry({ onAdded, onClose }: Props) {
   const asModal = typeof onClose === "function";
-  const initNum = splitNumber(initialNumber);
 
   // Set / series autocomplete
   const [sets, setSets] = useState<CatalogSet[]>([]);
-  const [set, setSet] = useState(initialSet?.trim().toUpperCase() ?? "");
+  const [set, setSet] = useState("");
   const [setLabel, setSetLabel] = useState<string | null>(null);
   const [showList, setShowList] = useState(false);
   const setBoxRef = useRef<HTMLDivElement>(null);
 
   // Card number: two numeric fields (num / total) with the slash between them,
   // plus an optional free-text mode for special prints (TG, GG, promos…).
-  const [num, setNum] = useState(initNum.num);
-  const [total, setTotal] = useState(initNum.total);
-  const [special, setSpecial] = useState(initNum.special);
-  const [specialNum, setSpecialNum] = useState(initNum.specialNum);
+  const [num, setNum] = useState("");
+  const [total, setTotal] = useState("");
+  const [special, setSpecial] = useState(false);
+  const [specialNum, setSpecialNum] = useState("");
 
   const [status, setStatus] = useState<Status>({ kind: "idle" });
-  const didAutoSearch = useRef(false);
 
   // Preload the set list once (for autocomplete). Failure is non-fatal —
   // the fields still accept free text.
@@ -163,15 +123,6 @@ export default function ManualEntry({
     if (!canSearch) return;
     void runSearch();
   }
-
-  // Auto-search once when opened with pre-filled values (e.g. from OCR).
-  useEffect(() => {
-    if (didAutoSearch.current) return;
-    didAutoSearch.current = true;
-    const hasNumber = special ? specialNum.trim() : num.trim();
-    if (autoSearch && set.trim() && hasNumber) void runSearch();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   async function handleAdd(preview: ManualLookupResponse) {
     setStatus({ kind: "adding", preview });
