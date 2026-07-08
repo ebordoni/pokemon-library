@@ -107,6 +107,14 @@ export interface CatalogStatus {
   seedingProgress: string | null;
 }
 
+/** A set available in the local catalog (for manual-entry autocomplete). */
+export interface CatalogSet {
+  setId: string;
+  setName: string;
+  ptcgoCode: string | null;
+  cardCount: number;
+}
+
 export interface CardFilters {
   q?: string;
   type?: string;

@@ -1,6 +1,10 @@
 import { useMemo, useState } from "react";
 import { api } from "../api/client";
-import type { ScanCandidate, ScanConfirmResponse, ScanDecision } from "../types";
+import type {
+  ScanCandidate,
+  ScanConfirmResponse,
+  ScanDecision,
+} from "../types";
 import TypeBadge from "./TypeBadge";
 
 type Action = "add" | "skip";
@@ -183,20 +187,13 @@ export default function ScanReview({
               className="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden"
             >
               <div className="flex gap-3 p-3">
-                <div className="w-14 aspect-[3/4] shrink-0 rounded bg-gray-100 dark:bg-gray-700 overflow-hidden">
-                  {card.imageUrl ? (
-                    <img
-                      src={card.imageUrl}
-                      alt={card.name}
-                      className="w-full h-full object-contain"
-                      loading="lazy"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-[10px] text-gray-300 dark:text-gray-600">
-                      No image
-                    </div>
-                  )}
-                </div>
+                <ImagePreview
+                  src={card.imageUrl}
+                  hiresSrc={card.imageUrlHires}
+                  alt={card.name}
+                  className="w-14 shrink-0"
+                  imgClassName="w-14 aspect-[3/4] rounded bg-gray-100 dark:bg-gray-700 object-contain"
+                />
                 <div className="min-w-0 flex-1">
                   <p className="font-semibold text-sm text-gray-900 dark:text-gray-100 truncate leading-tight">
                     {card.name}

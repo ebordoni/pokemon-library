@@ -1,10 +1,45 @@
-import { useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { api } from "../api/client";
-import type { ManualLookupResponse } from "../types";
+import type { CatalogSet, ManualLookupResponse } from "../types";
+import ImagePreview from "./ImagePreview";
 
 interface Props {
   /** Called after a card is successfully added to the collection. */
   onAdded?: () => void;
+  /** When provided, renders as a top-anchored modal with a close button. */
+  onClose?: () => void;
+  /** Pre-fill the set code (e.g. from OCR). */
+  initialSet?: string;
+  /** Pre-fill the card number (e.g. "126/167" or "TG05", from OCR). */
+  initialNumber?: string;
+  /** Run the lookup automatically on mount when set + number are present. */
+  autoSearch?: boolean;
+}
+
+/** Splits an incoming number string into the component form fields. */
+function splitNumber(n?: string): {
+  num: string;
+  total: string;
+  special: boolean;
+  specialNum: string;
+} {
+  const t = (n ?? "").trim();
+  if (!t) return { num: "", total: "", special: false, specialNum: "" };
+  if (/[a-zA-Z]/.test(t)) {
+    return {
+      num: "",
+      total: "",
+      special: true,
+      specialNum: t.toUpperCase().replace(/\s+/g, ""),
+    };
+  }
+  const [a, b] = t.split("/");
+  return {
+    num: (a ?? "").replace(/\D/g, ""),
+    total: (b ?? "").replace(/\D/g, ""),
+    special: false,
+    specialNum: "",
+  };
 }
 
 type Status =
@@ -22,23 +57,98 @@ function extractError(err: unknown, fallback: string): string {
   );
 }
 
-export default function ManualEntry({ onAdded }: Props) {
-  const [set, setSet] = useState("");
-  const [number, setNumber] = useState("");
+export default function ManualEntry({
+  onAdded,
+  onClose,
+  initialSet,
+  initialNumber,
+  autoSearch,
+}: Props) {
+  const asModal = typeof onClose === "function";
+  const initNum = splitNumber(initialNumber);
+
+  // Set / series autocomplete
+  const [sets, setSets] = useState<CatalogSet[]>([]);
+  const [set, setSet] = useState(initialSet?.trim().toUpperCase() ?? "");
+  const [setLabel, setSetLabel] = useState<string | null>(null);
+  const [showList, setShowList] = useState(false);
+  const setBoxRef = useRef<HTMLDivElement>(null);
+
+  // Card number: two numeric fields (num / total) with the slash between them,
+  // plus an optional free-text mode for special prints (TG, GG, promos…).
+  const [num, setNum] = useState(initNum.num);
+  const [total, setTotal] = useState(initNum.total);
+  const [special, setSpecial] = useState(initNum.special);
+  const [specialNum, setSpecialNum] = useState(initNum.specialNum);
+
   const [status, setStatus] = useState<Status>({ kind: "idle" });
+  const didAutoSearch = useRef(false);
+
+  // Preload the set list once (for autocomplete). Failure is non-fatal —
+  // the fields still accept free text.
+  useEffect(() => {
+    let cancelled = false;
+    api
+      .getSets()
+      .then(({ data }) => {
+        if (!cancelled) setSets(data);
+      })
+      .catch(() => {
+        /* ignore — offline / empty catalog */
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // Close the autocomplete dropdown when clicking outside.
+  useEffect(() => {
+    if (!showList) return;
+    function onDown(e: MouseEvent) {
+      if (setBoxRef.current && !setBoxRef.current.contains(e.target as Node)) {
+        setShowList(false);
+      }
+    }
+    document.addEventListener("mousedown", onDown);
+    return () => document.removeEventListener("mousedown", onDown);
+  }, [showList]);
+
+  const suggestions = useMemo(() => {
+    const q = set.trim().toLowerCase();
+    const base = q
+      ? sets.filter(
+          (s) =>
+            (s.ptcgoCode?.toLowerCase().includes(q) ?? false) ||
+            s.setName.toLowerCase().includes(q) ||
+            s.setId.toLowerCase().includes(q),
+        )
+      : sets;
+    return base.slice(0, 30);
+  }, [sets, set]);
+
+  const effectiveNumber = special
+    ? specialNum.trim()
+    : total.trim()
+      ? `${num.trim()}/${total.trim()}`
+      : num.trim();
 
   const canSearch =
     set.trim().length > 0 &&
-    number.trim().length > 0 &&
+    (special ? specialNum.trim().length > 0 : num.trim().length > 0) &&
     status.kind !== "searching" &&
     status.kind !== "adding";
 
-  async function handleSearch(e: React.FormEvent) {
-    e.preventDefault();
-    if (!canSearch) return;
+  function selectSet(s: CatalogSet) {
+    setSet(s.ptcgoCode ?? s.setId);
+    setSetLabel(s.setName);
+    setShowList(false);
+  }
+
+  async function runSearch() {
+    setShowList(false);
     setStatus({ kind: "searching" });
     try {
-      const { data } = await api.lookupManualCard(set.trim(), number.trim());
+      const { data } = await api.lookupManualCard(set.trim(), effectiveNumber);
       setStatus({ kind: "found", preview: data });
     } catch (err: unknown) {
       setStatus({
@@ -48,16 +158,34 @@ export default function ManualEntry({ onAdded }: Props) {
     }
   }
 
+  async function handleSearch(e: React.FormEvent) {
+    e.preventDefault();
+    if (!canSearch) return;
+    void runSearch();
+  }
+
+  // Auto-search once when opened with pre-filled values (e.g. from OCR).
+  useEffect(() => {
+    if (didAutoSearch.current) return;
+    didAutoSearch.current = true;
+    const hasNumber = special ? specialNum.trim() : num.trim();
+    if (autoSearch && set.trim() && hasNumber) void runSearch();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   async function handleAdd(preview: ManualLookupResponse) {
     setStatus({ kind: "adding", preview });
     try {
-      const { data } = await api.addManualCard(set.trim(), number.trim());
+      const { data } = await api.addManualCard(set.trim(), effectiveNumber);
       const label = data.wasDuplicate
         ? `${data.card.name} — doppione (×${data.card.quantity})`
         : `${data.card.name} aggiunta alla collezione`;
       setStatus({ kind: "added", message: label });
       setSet("");
-      setNumber("");
+      setSetLabel(null);
+      setNum("");
+      setTotal("");
+      setSpecialNum("");
       onAdded?.();
     } catch (err: unknown) {
       setStatus({
@@ -72,11 +200,9 @@ export default function ManualEntry({ onAdded }: Props) {
   }
 
   const preview =
-    status.kind === "found" || status.kind === "adding"
-      ? status.preview
-      : null;
+    status.kind === "found" || status.kind === "adding" ? status.preview : null;
 
-  return (
+  const body = (
     <div className="bg-white dark:bg-gray-800 rounded-2xl border-2 border-gray-200 dark:border-gray-700 p-4">
       <div className="flex items-center gap-2 mb-1">
         <svg
@@ -95,34 +221,137 @@ export default function ManualEntry({ onAdded }: Props) {
         <h2 className="font-semibold text-gray-900 dark:text-gray-100">
           Inserimento manuale
         </h2>
+        {asModal && (
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Chiudi"
+            className="ml-auto w-8 h-8 -mr-1 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 touch-manipulation"
+          >
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
+        )}
       </div>
       <p className="text-xs text-gray-400 dark:text-gray-500 mb-3">
         Cerca nel catalogo locale con il codice stampato sulla carta — senza AI.
       </p>
 
-      <form onSubmit={handleSearch} className="flex gap-2">
-        <input
-          type="text"
-          value={set}
-          onChange={(e) => setSet(e.target.value)}
-          placeholder="Set (es. TWM)"
-          autoCapitalize="characters"
-          className="w-28 shrink-0 px-3 py-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-sm text-gray-900 dark:text-gray-100 uppercase placeholder:normal-case placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-pokemon-blue"
-        />
-        <input
-          type="text"
-          value={number}
-          onChange={(e) => setNumber(e.target.value)}
-          placeholder="Numero (es. 126/167)"
-          className="flex-1 min-w-0 px-3 py-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-pokemon-blue"
-        />
-        <button
-          type="submit"
-          disabled={!canSearch}
-          className="shrink-0 px-4 py-2 rounded-xl text-sm font-medium bg-pokemon-blue text-white disabled:opacity-40 disabled:cursor-not-allowed touch-manipulation"
-        >
-          {status.kind === "searching" ? "…" : "Cerca"}
-        </button>
+      <form onSubmit={handleSearch} className="space-y-2">
+        {/* Series autocomplete */}
+        <div ref={setBoxRef} className="relative">
+          <input
+            type="text"
+            value={set}
+            onChange={(e) => {
+              setSet(e.target.value);
+              setSetLabel(null);
+              setShowList(true);
+            }}
+            onFocus={() => setShowList(true)}
+            placeholder="Serie (es. TWM o Twilight…)"
+            autoCapitalize="characters"
+            autoComplete="off"
+            className="w-full px-3 py-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-pokemon-blue"
+          />
+          {setLabel && (
+            <p className="mt-1 text-xs text-gray-400 dark:text-gray-500 truncate">
+              {setLabel}
+            </p>
+          )}
+          {showList && suggestions.length > 0 && (
+            <ul className="absolute z-20 mt-1 w-full max-h-56 overflow-y-auto rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-900 shadow-lg text-sm">
+              {suggestions.map((s) => (
+                <li key={s.setId}>
+                  <button
+                    type="button"
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      selectSet(s);
+                    }}
+                    className="w-full flex items-center gap-2 px-3 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-800 touch-manipulation"
+                  >
+                    <span className="inline-block min-w-[3rem] shrink-0 font-mono text-xs font-semibold text-pokemon-blue">
+                      {s.ptcgoCode ?? s.setId}
+                    </span>
+                    <span className="flex-1 min-w-0 truncate text-gray-700 dark:text-gray-200">
+                      {s.setName}
+                    </span>
+                    <span className="shrink-0 text-[11px] text-gray-400">
+                      {s.cardCount}
+                    </span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+
+        {/* Card number */}
+        {special ? (
+          <input
+            type="text"
+            value={specialNum}
+            onChange={(e) =>
+              setSpecialNum(e.target.value.toUpperCase().replace(/\s+/g, ""))
+            }
+            placeholder="Numero speciale (es. TG05, GG01, SWSH123)"
+            autoComplete="off"
+            className="w-full px-3 py-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-sm text-gray-900 dark:text-gray-100 uppercase placeholder:normal-case placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-pokemon-blue"
+          />
+        ) : (
+          <div className="flex items-center gap-2">
+            <input
+              type="text"
+              inputMode="numeric"
+              value={num}
+              onChange={(e) => setNum(e.target.value.replace(/\D/g, ""))}
+              placeholder="126"
+              autoComplete="off"
+              className="flex-1 min-w-0 px-3 py-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-sm text-center text-gray-900 dark:text-gray-100 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-pokemon-blue"
+            />
+            <span className="text-gray-400 dark:text-gray-500 font-semibold">
+              /
+            </span>
+            <input
+              type="text"
+              inputMode="numeric"
+              value={total}
+              onChange={(e) => setTotal(e.target.value.replace(/\D/g, ""))}
+              placeholder="167"
+              autoComplete="off"
+              className="flex-1 min-w-0 px-3 py-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-sm text-center text-gray-900 dark:text-gray-100 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-pokemon-blue"
+            />
+          </div>
+        )}
+
+        <div className="flex items-center justify-between gap-2">
+          <button
+            type="button"
+            onClick={() => setSpecial((v) => !v)}
+            className="text-xs text-gray-400 dark:text-gray-500 underline touch-manipulation"
+          >
+            {special ? "Numero standard" : "Carta speciale (TG, GG, promo…)"}
+          </button>
+          <button
+            type="submit"
+            disabled={!canSearch}
+            className="shrink-0 px-5 py-2 rounded-xl text-sm font-medium bg-pokemon-blue text-white disabled:opacity-40 disabled:cursor-not-allowed touch-manipulation"
+          >
+            {status.kind === "searching" ? "…" : "Cerca"}
+          </button>
+        </div>
       </form>
 
       {/* Error */}
@@ -150,16 +379,13 @@ export default function ManualEntry({ onAdded }: Props) {
       {/* Preview + confirm */}
       {preview && (
         <div className="mt-4 flex gap-3 items-center">
-          {preview.card.imageUrl ? (
-            <img
-              src={preview.card.imageUrl}
-              alt={preview.card.name}
-              className="w-16 rounded-lg shadow"
-              loading="lazy"
-            />
-          ) : (
-            <div className="w-16 h-[88px] rounded-lg bg-gray-100 dark:bg-gray-700" />
-          )}
+          <ImagePreview
+            src={preview.card.imageUrl}
+            hiresSrc={preview.card.imageUrlHires}
+            alt={preview.card.name}
+            className="w-16 shrink-0"
+            imgClassName="w-16 aspect-[3/4] rounded-lg shadow object-contain"
+          />
           <div className="flex-1 min-w-0">
             <p className="font-semibold text-gray-900 dark:text-gray-100 truncate">
               {preview.card.name}
@@ -187,6 +413,21 @@ export default function ManualEntry({ onAdded }: Props) {
           </button>
         </div>
       )}
+    </div>
+  );
+
+  if (!asModal) return body;
+
+  // Modal: anchored to the top so the on-screen keyboard (which docks at the
+  // bottom on mobile) never covers the input fields.
+  return (
+    <div
+      className="fixed inset-0 z-50 bg-black/40 flex items-start justify-center p-3 overflow-y-auto"
+      onMouseDown={(e) => {
+        if (e.target === e.currentTarget) onClose?.();
+      }}
+    >
+      <div className="w-full max-w-md mt-2 mb-6">{body}</div>
     </div>
   );
 }

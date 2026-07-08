@@ -5,6 +5,7 @@ import {
   clearCatalog,
   findBySetCodeAndNumber,
   getCatalogStatus,
+  listSets,
   seedCatalog,
 } from "../services/catalog.service";
 
@@ -13,6 +14,11 @@ const router = Router();
 // GET /api/catalog — catalog status and card count
 router.get("/", (_req: Request, res: Response) => {
   res.json(getCatalogStatus());
+});
+
+// GET /api/catalog/sets — list of sets in the local catalog (for autocomplete)
+router.get("/sets", (_req: Request, res: Response) => {
+  res.json(listSets());
 });
 
 // GET /api/catalog/lookup?set=TWM&number=126 — preview a catalog card by its

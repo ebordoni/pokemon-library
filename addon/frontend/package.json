@@ -1,6 +1,6 @@
 {
       "name": "pokemon-library-frontend",
-      "version": "0.2.9",
+      "version": "0.3.1",
       "private": true,
       "type": "module",
       "scripts": {
@@ -15,6 +15,7 @@
             "react-dropzone": "^14.2.3",
             "react-router-dom": "^6.24.0",
             "recharts": "^3.9.2",
+            "tesseract.js": "^5.1.1",
             "zustand": "^4.5.4"
       },
       "devDependencies": {

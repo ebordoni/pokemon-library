@@ -65,6 +65,9 @@ export const api = {
   // ── Catalog ────────────────────────────────────────────────────────────
   getCatalogStatus: () => apiClient.get<CatalogStatus>("/catalog"),
 
+  /** List of sets in the local catalog — used for manual-entry autocomplete */
+  getSets: () => apiClient.get<CatalogSet[]>("/catalog/sets"),
+
   triggerCatalogUpdate: () =>
     apiClient.post<{ message: string }>("/catalog/update"),
 

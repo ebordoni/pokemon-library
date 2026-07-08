@@ -58,6 +58,13 @@ export interface CatalogStatus {
   seedingProgress: string | null;
 }
 
+export interface CatalogSetInfo {
+  setId: string;
+  setName: string;
+  ptcgoCode: string | null;
+  cardCount: number;
+}
+
 // ── Module-level state ────────────────────────────────────────────────────
 
 let seedingInProgress = false;
@@ -88,6 +95,27 @@ export function getCatalogStatus(): CatalogStatus {
     isSeeding: seedingInProgress,
     seedingProgress: currentProgress,
   };
+}
+
+/**
+ * Returns the list of sets present in the local catalog, with the printed
+ * set code (ptcgoCode) and the number of cards, sorted by set name. Used to
+ * power the manual-entry series autocomplete on the frontend.
+ */
+export function listSets(): CatalogSetInfo[] {
+  const db = getDb();
+  return db
+    .prepare(
+      `SELECT
+         set_id                  AS setId,
+         set_name                AS setName,
+         MAX(ptcgo_code)         AS ptcgoCode,
+         COUNT(*)                AS cardCount
+       FROM card_catalog
+       GROUP BY set_id
+       ORDER BY set_name COLLATE NOCASE`,
+    )
+    .all() as unknown as CatalogSetInfo[];
 }
 
 /**
