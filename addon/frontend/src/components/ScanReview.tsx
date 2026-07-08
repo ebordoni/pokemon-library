@@ -5,6 +5,7 @@ import type {
   ScanConfirmResponse,
   ScanDecision,
 } from "../types";
+import ImagePreview from "./ImagePreview";
 import TypeBadge from "./TypeBadge";
 
 type Action = "add" | "skip";

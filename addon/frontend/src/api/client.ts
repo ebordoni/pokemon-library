@@ -2,6 +2,7 @@ import axios from "axios";
 import type {
   Card,
   CardFilters,
+  CatalogSet,
   CatalogStatus,
   CollectionStats,
   ManualAddResponse,
